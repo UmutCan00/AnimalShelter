@@ -21,32 +21,34 @@ mysql = MySQL(app)
 #Home Page Function
 @app.route('/', methods =['GET'])
 def home():
-    return render_template('home.html')
+    return render_template('auth/home.html')
+
 
 #Login Page Function
 @app.route('/login', methods =['GET', 'POST'])
 def login():
     message = ''
-    if request.method == 'POST' and 'username' in request.form and 'password' in request.form:
-        username = request.form['username']
+    if request.method == 'POST' and 'email' in request.form and 'password' in request.form:
+        email = request.form['email']
         password = request.form['password']
+        print(email);
+        print(password);
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        cursor.execute('SELECT * FROM student WHERE sname = % s AND sid = % s', (username, password, ))
+        cursor.execute('SELECT * FROM user WHERE Email = % s AND Password = % s', (email, password, ))
         user = cursor.fetchone()
         if user:
             print("entered")
             session['loggedin'] = True
-            session['userid'] = user['sid']
-            session['username'] = user['sname']
-            session['gpa'] = user['gpa']
-            session['bdate'] = user['bdate']
-            session['year'] = user['year']
-            session['dept'] = user['dept']
+            session['userid'] = user['User_ID']
             message = 'Logged in successfully!'
-            return redirect(url_for('tasks'))
+            return redirect(url_for('suite'))
         else:
             message = 'Please enter correct password !'
-    return render_template('login.html', message = message)
+    return render_template('auth/login.html', message = message)
+
+@app.route('/suite', methods =['GET'])
+def suite():
+    return render_template('auth/suite.html')
 
 #Signup Page Function
 @app.route('/register', methods =['GET', 'POST'])

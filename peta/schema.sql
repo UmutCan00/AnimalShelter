@@ -10,6 +10,11 @@ CREATE TABLE user (
 );
 
 
+INSERT INTO user
+VALUES
+    ('U001', '123456', 'a', 'b', 'cenkerakan@email.com', "987897987"),
+    ('U002', '123', 'a', 'c', 'cenkerakan@asdmail.com', "46545");
+
 CREATE TABLE Pet (
     Pet_ID CHAR(11) PRIMARY KEY,
     Name VARCHAR(50),
