@@ -6,7 +6,7 @@ import os
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
-
+from datetime import datetime
 app = Flask(__name__) 
 
 app.secret_key = 'abcdefgh'
@@ -92,21 +92,70 @@ def register():
 @app.route('/registerPet', methods =['GET', 'POST'])
 def registerPet():
     message = ''
-    if request.method == 'POST' and 'type' in request.form and 'breed' in request.form and 'dateOfBirth' in request.form and 'vacCard' in request.form and 'petImage' in request.form and 'adoptionFee' in request.form and 'description' in request.form:
-        userid = session["userid"]
+    if request.method == 'POST' and 'type' in request.form and 'breed' in request.form and 'dateOfBirth' in request.form and 'vacCard' in request.form and 'gender' in request.form and 'description' in request.form:
+        #real
+        #userid = session["userid"]
         
+        # for dev purposes must be changed when in Use
+        userid = "AS001"
+        
+        #get form info
         animalType = request.form['type']
         animalBreed = request.form['breed']
         dateOfBirth = request.form['dateOfBirth']
         vacCard = request.form['vacCard']
-        petImage = request.form['petImage']
-        adoptionFee = request.form['adoptionFee']
+        gender = request.form['gender']
         description = request.form['description']
-        
-        if not animalType or not animalBreed or not dateOfBirth or not vacCard or not description:
+        #for test
+        printer=("animalType: ", animalType, "animalBreed: ", animalBreed, "dateOfBirth: ", dateOfBirth, "vacCard: ", vacCard,"gender: ", gender, "description: ", description)
+        message=printer
+        # control missing info
+        if not animalType or not animalBreed or not dateOfBirth or not vacCard or not gender or not description:
             message = 'Please fill out the form!'
             return render_template('shelter/registerPet.html', message = message)
+        #control for db
+        elif (len(animalType) > 50 or len(animalBreed)>50 or len(gender)>10 or len(description)>250 or len(vacCard)>250):
+            message = 'Too long texts!'
+            return render_template('register.html', message = message)
+        
+        today = datetime.now().date()
+        birth_date = datetime.strptime(dateOfBirth, '%Y-%m-%d').date()
+        age = today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
+        # control birth date
+        if birth_date > today:
+            message = 'Invalid date of birth. Please enter a date in the past.'
+            return render_template('shelter/registerPet.html', message=message)
+        
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute('SELECT * FROM AnimalShelter WHERE User_ID = %s', (userid,))
+        account = cursor.fetchone()
+        
+        # checks if this is a shelter account
+        if account:
+            cursor.execute('SELECT * FROM Pet')
+            pets = cursor.fetchall()
+            lastId = 354
+            #Manuel primary key increment
+            for pet in pets:
+                lastId = int(pet['Pet_ID'][1:]) 
+            nextId = "P"+str(lastId + 1)
+            #insert new Pet
+            cursor.execute('INSERT INTO Pet (Pet_ID, Name, Breed, Date_of_Birth, Age, Gender, Description, Adoption_Status, Medical_History) VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s)', 
+                           (nextId, animalType, animalBreed, dateOfBirth, age, gender, description, "notAdopted", vacCard))
+            mysql.connection.commit()
+            # increment animal count of animal shelter
+            current_number_of_animals = account['Number_of_Animals']
+            updated_number_of_animals = current_number_of_animals + 1
+            cursor.execute('UPDATE AnimalShelter SET Number_of_Animals = %s WHERE User_ID = %s', (updated_number_of_animals, userid))
+            mysql.connection.commit()
+            
+        cursor.execute("SELECT * FROM Pet")
+        allPets = cursor.fetchall()
+        # must be changed in the prod
+        message = allPets
+        #message = 'Pet successfully created!'      
     elif request.method == 'POST':
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
         message = 'Please fill all the fields!'
     
     return render_template('shelter/registerPet.html', message = message)
