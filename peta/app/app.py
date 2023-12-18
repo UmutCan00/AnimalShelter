@@ -89,6 +89,28 @@ def register():
     
     return render_template('register.html', message = message)
 
+@app.route('/registerPet', methods =['GET', 'POST'])
+def registerPet():
+    message = ''
+    if request.method == 'POST' and 'type' in request.form and 'breed' in request.form and 'dateOfBirth' in request.form and 'vacCard' in request.form and 'petImage' in request.form and 'adoptionFee' in request.form and 'description' in request.form:
+        userid = session["userid"]
+        
+        animalType = request.form['type']
+        animalBreed = request.form['breed']
+        dateOfBirth = request.form['dateOfBirth']
+        vacCard = request.form['vacCard']
+        petImage = request.form['petImage']
+        adoptionFee = request.form['adoptionFee']
+        description = request.form['description']
+        
+        if not animalType or not animalBreed or not dateOfBirth or not vacCard or not description:
+            message = 'Please fill out the form!'
+            return render_template('shelter/registerPet.html', message = message)
+    elif request.method == 'POST':
+        message = 'Please fill all the fields!'
+    
+    return render_template('shelter/registerPet.html', message = message)
+
 #Main Page Function
 @app.route('/tasks', methods =['GET', 'POST'])
 def tasks():
