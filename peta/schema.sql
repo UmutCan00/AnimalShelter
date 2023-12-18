@@ -1,11 +1,27 @@
-CREATE TABLE student (
-    sid CHAR(6) PRIMARY KEY,
-    sname VARCHAR(50),
-    bdate DATE,
-    dept CHAR(2),
-    year VARCHAR(15),
-    gpa FLOAT
+CREATE TABLE user (
+    User_ID CHAR(11) PRIMARY KEY,
+    Password VARCHAR(40) NOT NULL,
+    First_Middle_Name VARCHAR(60),
+    Last_Name VARCHAR(60),
+    Email VARCHAR(100),
+    Phone_Number VARCHAR(20)
 );
+
+
+CREATE TABLE Pet (
+    Pet_ID CHAR(11) PRIMARY KEY,
+    Name VARCHAR(50),
+    Breed VARCHAR(50),
+    Date_of_Birth DATE,
+    Age INT,
+    Gender VARCHAR(10),
+    Description TEXT,
+    Adoption_Status VARCHAR(20),
+    Medical_History TEXT
+);
+
+
+
 
 INSERT INTO student
 VALUES
