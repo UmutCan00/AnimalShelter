@@ -233,7 +233,6 @@ def tasks():
             return render_template('tasks.html', message=message, userid=userid, username=username, dept=dept, bdate=bdate, year=year, gpa=gpa)
         else:
             return redirect(url_for('login'))
-        
 
 #Cancel Application Function
 @app.route('/cancelApplication', methods =['GET', 'POST'])
@@ -403,6 +402,66 @@ def appSum():
             return redirect(url_for('login'))
     return "stats.html"
 
+#bilal kar
+@app.route('/admin_page', methods=['GET', 'POST'])
+def appSum():
+    if request.method == 'GET':
+        userid = session["userid"]
+        if userid:
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+            # Query for Adopter List
+            cursor.execute('''
+                SELECT u.User_ID, u.First_Middle_Name, u.Last_Name
+                FROM User u
+                JOIN Adopter a ON u.User_ID = a.User_ID
+            ''')
+            adopter_data = cursor.fetchall()
+
+            # Query for AnimalShelter List
+            cursor.execute('''
+                SELECT User_ID, first_middle_name, last_name
+                FROM AnimalShelter
+            ''')
+            animal_shelter_data = cursor.fetchall()
+
+            # Query for Adoption Applications
+            cursor.execute('''
+                SELECT application_id, pet_name
+                FROM AdoptionApplication
+                NATURAL JOIN Pet
+                WHERE application_status = 'unapproved';
+            ''')
+            adoption_applications_data = cursor.fetchall()
+
+            # Query for Donation Applications
+            cursor.execute('''
+                SELECT application_id, pet_name
+                FROM DonationApplication
+                NATURAL JOIN Pet
+                WHERE application_status = 'unapproved';
+            ''')
+            donation_applications_data = cursor.fetchall()
+
+            # Query for Veterinarians List
+            cursor.execute('''
+                SELECT User_ID, first_middle_name, last_name
+                FROM Veterinarian
+                WHERE status = 'unapproved';
+            ''')
+            vet_data = cursor.fetchall()
+
+            return render_template('admin_panel.html',
+                                   adopter_data=adopter_data,
+                                   animal_shelter_data=animal_shelter_data,
+                                   adoption_applications_data=adoption_applications_data,
+                                   donation_applications_data=donation_applications_data,
+                                   vet_data=vet_data,
+                                   userid=userid)
+        else:
+            return redirect(url_for('login'))
+    return "admin_panel.html"
+
 #Logout Function
 @app.route('/logout', methods =['GET', 'POST'])
 def logout():
@@ -426,10 +485,6 @@ def logout():
         return render_template('login.html')
     return render_template('login.html')
 
-#I did not use analysis. I used appSum() function as Application Summary Page Function
-@app.route('/analysis', methods =['GET', 'POST'])
-def analysis():
-    return "Analysis page"
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))

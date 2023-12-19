@@ -82,3 +82,36 @@ VALUES
     ('AA001', 'P001'),
     ('AA002', 'P002'),
     ('AA003', 'P003');
+
+
+
+CREATE TABLE Adopter (
+    User_ID CHAR(11) PRIMARY KEY,
+    Number_of_Adoptions INT,
+);
+
+INSERT INTO Adopter
+VALUES
+    ('Adopter Bilal', 1),
+    ('Adopter Firat', 31),
+    ('Adopter Cenker', 3),
+
+
+
+
+
+
+CREATE TABLE pet_donation_appl ( 
+    Donation_Application_ID CHAR(11), 
+    Pet_ID CHAR(11), 
+    Donation_Date DATE,
+    Donation_Status VARCHAR(20),
+    FOREIGN KEY (Donation_Application_ID) REFERENCES DonationApplication (Donation_Application_ID) ON DELETE CASCADE, 
+    FOREIGN KEY (Pet_ID) REFERENCES Pet (Pet_ID) ON DELETE CASCADE, 
+);  
+
+INSERT INTO petDpet_donation_applonationAppl
+VALUES
+    ('PDA001', 'U001', '1800-01-01', 'Approved'),
+    ('PDA002', 'U001', '1800-01-01', 'Approved'),
+    ('PDA003', 'U001', '1800-01-01', 'Unapproved');
