@@ -48,3 +48,18 @@ CREATE TABLE lists (
     FOREIGN KEY (User_ID) REFERENCES AnimalShelter (User_ID) ON DELETE CASCADE,
     FOREIGN KEY (Pet_ID) REFERENCES Pet (Pet_ID) ON DELETE CASCADE
 );
+
+CREATE TABLE AdoptionApplication (
+    Application_ID CHAR(11) PRIMARY KEY,
+    User_ID CHAR(11),
+    Application_Date DATE,
+    Application_Status VARCHAR(20),
+    FOREIGN KEY (User_ID) REFERENCES user(User_ID) ON DELETE CASCADE
+);
+
+CREATE TABLE Pet_Adoption(
+    Application_ID CHAR(11),
+    Pet_ID CHAR(11),
+    FOREIGN KEY (Pet_ID) REFERENCES Pet(Pet_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Application_ID) REFERENCES AdoptionApplication(Application_ID) ON DELETE CASCADE
+);
