@@ -29,9 +29,9 @@ INSERT INTO Pet
 VALUES
     ('P001', 'pet name 1', 'Tekir', '1800-01-01', 12, 'email', 'des1', 'Approved', 'grip'),
     ('P002', 'pet name 2', 'Sarman', '1800-01-02', 21, 'male', 'des2', 'Approved', 'flu'),
-    ('P003', 'pet name 3', 'Siyam', '1800-01-03', 123, 'female', 'des3', 'Unapproved', 'fever');
-
-
+    ('P003', 'pet name 3', 'Siyam', '1800-01-03', 123, 'female', 'des3', 'Unapproved', 'fever'),
+    ('P004', 'pet name 4', 'British', '1800-01-04', 1234, 'male', 'des4', 'Unapproved', 'none'),
+    ('P005', 'pet name 5', 'Scottish', '1800-01-05', 12345, 'female', 'des5', 'Unapproved', 'chickenpox');
 
 CREATE TABLE AnimalShelter (
     User_ID CHAR(11) PRIMARY KEY,
@@ -40,7 +40,7 @@ CREATE TABLE AnimalShelter (
 
 INSERT INTO AnimalShelter
 VALUES
-    ('AS001', 0),
+    ('AS001', 2),
     ('AS002', 0);
 
 CREATE TABLE lists (
@@ -49,6 +49,12 @@ CREATE TABLE lists (
     FOREIGN KEY (User_ID) REFERENCES AnimalShelter (User_ID) ON DELETE CASCADE,
     FOREIGN KEY (Pet_ID) REFERENCES Pet (Pet_ID) ON DELETE CASCADE
 );
+
+INSERT INTO lists
+VALUES
+    ('AS001', 'P003'),
+    ('AS001', 'P004'),
+    ('AS002', 'P005');
 
 CREATE TABLE AdoptionApplication (
     Application_ID CHAR(11) PRIMARY KEY,

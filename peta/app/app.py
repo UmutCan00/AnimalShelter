@@ -186,7 +186,31 @@ def current_adopted_pets():
         else:
             return redirect(url_for('login'))
 
-
+@app.route('/shelterAnimalList', methods =['GET', 'POST'])
+def shelterAnimalList():
+    if request.method == 'GET':
+        # assuming shelterid is stored in session
+        #shelterId = session["shelterId"]
+        shelterId = "AS001"
+        # ^for dev purposes
+        
+        userid = session["userid"]
+        if shelterId:
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+            cursor.execute('''
+                SELECT P.*
+                FROM Pet P
+                NATURAL JOIN lists L
+                WHERE L.User_ID = %s
+            ''', (shelterId,))
+            
+            message = cursor.fetchall()
+            cursor.execute('SELECT * FROM AnimalShelter WHERE User_ID = %s', (shelterId,))
+            AnimalS = cursor.fetchall()
+            return render_template('shelter/shelterAnimalList.html', message=message,animalNumber=AnimalS)
+        else:
+            return redirect(url_for('login'))
+        
 #Main Page Function
 @app.route('/tasks', methods =['GET', 'POST'])
 def tasks():
@@ -209,6 +233,7 @@ def tasks():
             return render_template('tasks.html', message=message, userid=userid, username=username, dept=dept, bdate=bdate, year=year, gpa=gpa)
         else:
             return redirect(url_for('login'))
+        
 
 #Cancel Application Function
 @app.route('/cancelApplication', methods =['GET', 'POST'])
