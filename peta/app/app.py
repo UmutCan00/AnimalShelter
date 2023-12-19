@@ -148,8 +148,11 @@ def registerPet():
             updated_number_of_animals = current_number_of_animals + 1
             cursor.execute('UPDATE AnimalShelter SET Number_of_Animals = %s WHERE User_ID = %s', (updated_number_of_animals, userid))
             mysql.connection.commit()
+            cursor.execute('INSERT INTO lists (User_ID, Pet_ID) VALUES ( %s, %s)', 
+                           (userid, nextId))
+            mysql.connection.commit()
             
-        cursor.execute("SELECT * FROM Pet")
+        cursor.execute("SELECT * FROM lists")
         allPets = cursor.fetchall()
         # must be changed in the prod
         message = allPets
@@ -159,6 +162,30 @@ def registerPet():
         message = 'Please fill all the fields!'
     
     return render_template('shelter/registerPet.html', message = message)
+
+
+@app.route('/current_adopted_pets', methods =['GET', 'POST'])
+def current_adopted_pets():
+    if request.method == 'GET':
+        userid = session["userid"]
+        message = userid
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        #cursor.execute("SELECT * FROM Pet_Adoption")
+        if userid:
+            cursor.execute("""
+                    SELECT P.*
+                    FROM Pet P 
+                    NATURAL JOIN Pet_Adoption PA 
+                    NATURAL JOIN AdoptionApplication AA 
+                    WHERE AA.User_ID = %s AND AA.Application_Status = 'Approved';
+                """,(userid,))
+            
+            pets = cursor.fetchall()
+            message = pets
+            return render_template('adoptedPets.html', message=message)#, userid=userid, username=username, dept=dept, bdate=bdate, year=year, gpa=gpa)
+        else:
+            return redirect(url_for('login'))
+
 
 #Main Page Function
 @app.route('/tasks', methods =['GET', 'POST'])

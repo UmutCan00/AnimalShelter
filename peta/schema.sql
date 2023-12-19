@@ -28,7 +28,8 @@ CREATE TABLE Pet (
 INSERT INTO Pet
 VALUES
     ('P001', 'pet name 1', 'Tekir', '1800-01-01', 12, 'email', 'des1', 'Approved', 'grip'),
-    ('P002', 'pet name 2', 'Sarman', '1800-01-02', 21, 'male', 'des2', 'Approved', 'flu');
+    ('P002', 'pet name 2', 'Sarman', '1800-01-02', 21, 'male', 'des2', 'Approved', 'flu'),
+    ('P003', 'pet name 3', 'Siyam', '1800-01-03', 123, 'female', 'des3', 'Unapproved', 'fever');
 
 
 
@@ -48,3 +49,30 @@ CREATE TABLE lists (
     FOREIGN KEY (User_ID) REFERENCES AnimalShelter (User_ID) ON DELETE CASCADE,
     FOREIGN KEY (Pet_ID) REFERENCES Pet (Pet_ID) ON DELETE CASCADE
 );
+
+CREATE TABLE AdoptionApplication (
+    Application_ID CHAR(11) PRIMARY KEY,
+    User_ID CHAR(11),
+    Application_Date DATE,
+    Application_Status VARCHAR(20),
+    FOREIGN KEY (User_ID) REFERENCES user(User_ID) ON DELETE CASCADE
+);
+
+INSERT INTO AdoptionApplication
+VALUES
+    ('AA001', 'U001', '1800-01-01', 'Approved'),
+    ('AA002', 'U001', '1800-01-01', 'Approved'),
+    ('AA003', 'U001', '1800-01-01', 'Unapproved');
+
+CREATE TABLE Pet_Adoption(
+    Application_ID CHAR(11),
+    Pet_ID CHAR(11),
+    FOREIGN KEY (Pet_ID) REFERENCES Pet(Pet_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Application_ID) REFERENCES AdoptionApplication(Application_ID) ON DELETE CASCADE
+);
+
+INSERT INTO Pet_Adoption
+VALUES
+    ('AA001', 'P001'),
+    ('AA002', 'P002'),
+    ('AA003', 'P003');

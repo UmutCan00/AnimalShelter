@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Peta</title>
+</head>
+<body>
+    <div class="topnav">
+        <a href="/">Home</a>
+        <a href="">Pet Adoption</a>
+        <a href="">Pet Care</a>
+        <a href="">Vet Appointment</a>
+        <a href="">Current Applications</a>
+        <div class ="lean-right">
+            <a class="active" href="login">Login</a>
+            <a href="register">Signup</a>
+        </div>
+    </div>
+    <div class="container">
+        <h1>PETA Pet Care+</h1>
+    </div>
+    <div class="content">
+        <div class="card">
+            <h1>Add New Pet to System</h1>
+            <ul>
+                <li>YOUR PETS ADOPTED FROM THIS PLATFORM &#x21E9;</li>
+                {% for item in message %}
+                    <li>
+                        <div>Type:{{item['Name']}}, Breed:{{item['Breed']}}, Age:{{item['Age']}}</div>
+                        <button class="button">See Pet Care Details</button>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</body>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+
+    .topnav {
+        background-color: #333;
+        overflow: hidden;
+    }
+
+    .topnav a {
+        float: left;
+        display: block;
+        color: #f2f2f2;
+        text-align: center;
+        padding: 14px 16px;
+        text-decoration: none;
+    }
+
+    .topnav a:hover {
+        background-color: #ddd;
+        color: black;
+    }
+
+    .topnav .lean-right {
+        float: right;
+    }
+
+    .topnav .active {
+        background-color: #04AA6D;
+        color: white;
+    }
+
+    .container {
+        text-align: center;
+        padding: 20px;
+    }
+
+    .content {
+        display: flex;
+        justify-content: center;
+    }
+
+    .card {
+        background-color: #d8dee8;
+        width: 700px;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    .card h1 {
+        margin-bottom: 20px;
+    }
+
+    .card ul {
+        list-style-type: none;
+        padding: 0;
+        text-align: left;
+    }
+
+    .card li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border: 1px solid #333;
+        padding: 10px;
+    }
+
+    .button {
+        background-color: #4CAF50;
+        color: white;
+        padding: 8px 12px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        text-align: left;
+    }
+</style>
+</html>
