@@ -97,8 +97,8 @@ CREATE TABLE Has_Pet (
 CREATE TABLE Meet_And_Greet (
     Date DATE,
     Time TIME,
-    Pet_ID INT,
-    User_ID INT,
+    Pet_ID VARCHAR(11),
+    User_ID VARCHAR(11),
     PRIMARY KEY (Date, Time)
 );
 

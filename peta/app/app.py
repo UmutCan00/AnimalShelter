@@ -402,11 +402,10 @@ applications_data = {
 
 @app.route("/adoption-application/<id>", methods=["GET", "POST"])
 def adoption_application(id):
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     if request.method == "GET":
         # Fetch pet data related to the provided ID and user from the session
-
         user_id = session["userid"]
-        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
         if not user_id:
             return "User not logged in", 403
 
@@ -415,10 +414,15 @@ def adoption_application(id):
             "FROM Pet p "
             "JOIN Pet_Adoption pa ON p.Pet_ID = pa.Pet_ID "
             "JOIN AdoptionApplication aa ON aa.Application_ID = pa.Application_ID "
-            "WHERE p.Pet_ID = %s AND aa.User_ID = %s",
+            "WHERE aa.Application_ID = %s AND aa.User_ID = %s",
             (id, user_id),
         )
         pet_application = cursor.fetchone()
+        cursor.execute(
+            "SELECT * FROM Meet_And_Greet WHERE Pet_ID = %s AND User_ID = %s",
+            (id, user_id),
+        )
+        meet_and_greet = cursor.fetchall()
 
         if not pet_application:
             return "Pet or application not found", 404
@@ -427,8 +431,7 @@ def adoption_application(id):
             "adoption_application.html",
             pet=pet_application,
             application=pet_application,
-            # status=pet_application.Adoption_Status,
-            message=pet_application,
+            meet_and_greet=meet_and_greet,
         )
 
     elif request.method == "POST":
@@ -436,26 +439,41 @@ def adoption_application(id):
             date = request.form.get("date")
             phone_number = request.form.get("phone_number")
 
-            # Perform actions related to scheduling a meet and greet
-            # Update database or perform necessary operations
+            # Insert meet and greet details into the database
+            cursor.execute(
+                "INSERT INTO Meet_And_Greet (Date, Time, Pet_ID, User_ID) VALUES (%s, %s, %s, %s)",
+                (date.split("T")[0], date.split("T")[1], id, session["userid"]),
+            )
+            mysql.connection.commit()
 
             return redirect(url_for("home", id=id))
 
         elif "cancel_application" in request.form:
-            # Perform actions related to canceling the application
-            # Delete data or update database as necessary
-
+            # Cancel the application by updating the status to 'Canceled'
             cursor.execute(
-                "DELETE aa FROM AdoptionApplication aa "
-                "JOIN Pet_Adoption pa ON aa.Application_ID = pa.Application_ID "
-                "WHERE pa.Pet_ID = %s AND aa.User_ID = %s",
-                (id, session.get("userid")),
+                "UPDATE AdoptionApplication SET Application_Status = 'Canceled' "
+                "WHERE Application_ID = %s AND User_ID = %s",
+                (id, session["userid"]),
             )
             mysql.connection.commit()
 
             return redirect(url_for("home"))
 
     return "Invalid Request", 400
+
+
+@app.route("/current-applications")
+def current_applications():
+    user_id = session["userid"]
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+    cursor.execute(
+        "SELECT Application_ID, Application_Date, Application_Status FROM AdoptionApplication WHERE User_ID = %s",
+        (user_id,),
+    )
+    applications = cursor.fetchall()
+
+    return render_template("current_applications.html", applications=applications)
 
 
 @app.route("/registerPet", methods=["GET", "POST"])

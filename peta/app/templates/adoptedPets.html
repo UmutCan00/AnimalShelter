@@ -1,18 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Peta</title>
 </head>
+
 <body>
     <div class="topnav">
         <a href="/">Home</a>
         <a href="">Pet Adoption</a>
         <a href="">Pet Care</a>
         <a href="">Vet Appointment</a>
-        <a href="">Current Applications</a>
-        <div class ="lean-right">
+        <a href="/current-applications">Current Applications</a>
+        <div class="lean-right">
             <a class="active" href="login">Login</a>
             <a href="register">Signup</a>
         </div>
@@ -26,10 +28,10 @@
             <ul>
                 <li>YOUR PETS ADOPTED FROM THIS PLATFORM &#x21E9;</li>
                 {% for item in message %}
-                    <li>
-                        <div>Type:{{item['Name']}}, Breed:{{item['Breed']}}, Age:{{item['Age']}}</div>
-                        <button class="button">See Pet Care Details</button>
-                    </li>
+                <li>
+                    <div>Type:{{item['Name']}}, Breed:{{item['Breed']}}, Age:{{item['Age']}}</div>
+                    <button class="button">See Pet Care Details</button>
+                </li>
                 {% endfor %}
             </ul>
         </div>
@@ -117,4 +119,5 @@
         text-align: left;
     }
 </style>
+
 </html>

@@ -1,4 +1,5 @@
 <div>
+    <!-- Pet Details -->
     <h1>Pet Details</h1>
     <p>Pet ID: {{ pet.Pet_ID }}</p>
     <p>Name: {{ pet.Name }}</p>
@@ -17,6 +18,31 @@
 <hr>
 
 <div>
+    <div>
+        <h2>Existing Meet and Greet Sections</h2>
+        {% if meet_and_greet %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <!-- Add more table headers as needed -->
+                </tr>
+            </thead>
+            <tbody>
+                {% for meet in meet_and_greet %}
+                <tr>
+                    <td>{{ meet.Date }}</td>
+                    <td>{{ meet.Time }}</td>
+                    <!-- Display other Meet and Greet details -->
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No Meet and Greet sections found for this pet.</p>
+        {% endif %}
+    </div>
     <h2>Schedule a Meet and Greet</h2>
     <form action="" method="post">
         {% if message is defined and message %}
