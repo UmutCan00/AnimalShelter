@@ -140,4 +140,58 @@ VALUES
 INSERT INTO Has_Pet (Pet_ID, User_ID)
 VALUES
     ('P001', 'U001'), 
-    ('P002', 'U002');  
+    ('P002', 'U002');
+
+
+CREATE TABLE Adopter(
+    User_ID CHAR(11) PRIMARY KEY,
+    Number_of_Adoptions INT
+);
+
+
+CREATE TABLE Administrator (
+    User_ID CHAR(11) PRIMARY KEY,
+    Num_of_Adoption_Overseen INT,
+    Num_of_Donation_Overseen INT,
+    Num_of_Control_Overseen INT
+);
+
+CREATE TABLE ControlForm (
+    Form_ID CHAR(11) PRIMARY KEY,
+    Form_Name VARCHAR(50),
+    Description TEXT,
+    Adoption_Fee_Status VARCHAR(20)
+);
+
+CREATE TABLE PetHealthReport (
+    Report_ID CHAR(11) PRIMARY KEY,
+    Diagnosis TEXT,
+    Medications TEXT,
+    Treatment_Date DATE
+);
+
+CREATE TABLE ExpertAdvice (
+    Advice_ID CHAR(11) PRIMARY KEY,
+    Title VARCHAR(100),
+    Description TEXT
+);
+
+CREATE TABLE DonationApplication (
+    Donation_Application_ID CHAR(11) PRIMARY KEY,
+    Application_Date DATE,
+    Application_Status VARCHAR(20)
+);
+
+CREATE TABLE PetCareInfo (
+    Info_ID CHAR(11) PRIMARY KEY,
+    Title VARCHAR(100),
+    Description TEXT,
+    Category VARCHAR(50)
+);
+
+CREATE TABLE donates (
+    User_ID CHAR(11),
+    Donation_Application_ID CHAR(11),
+    FOREIGN KEY (User_ID) REFERENCES user(User_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Donation_Application_ID) REFERENCES DonationApplication(Donation_Application_ID) ON DELETE CASCADE
+);
