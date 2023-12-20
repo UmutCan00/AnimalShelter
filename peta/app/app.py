@@ -191,6 +191,11 @@ def petcare():
     return render_template("petcareinfo.html", pets=user_pets)
 
 
+@app.route("/petcare/<pet_type>")
+def pet_care_info(pet_type):
+    return render_template("typepetcare.html", pet_type=pet_type)
+
+
 pet_details = {
     "Pet_ID": "1",
     "Name": "Buddy",
