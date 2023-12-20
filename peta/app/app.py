@@ -640,6 +640,7 @@ def registerPet():
         and "vacCard" in request.form
         and "gender" in request.form
         and "description" in request.form
+        and "name" in request.form
     ):
         # real
         # userid = session["userid"]
@@ -654,6 +655,8 @@ def registerPet():
         vacCard = request.form["vacCard"]
         gender = request.form["gender"]
         description = request.form["description"]
+        animalName = request.form["name"]
+        animalFee = request.form["fee"]
         # for test
         printer = (
             "animalType: ",
@@ -668,8 +671,14 @@ def registerPet():
             gender,
             "description: ",
             description,
+            "animalName: ",
+            animalName,
+            "animalFee: ",
+            animalFee,
         )
         message = printer
+        if not animalFee:
+            animalFee = 0
         # control missing info
         if (
             not animalType
@@ -678,16 +687,18 @@ def registerPet():
             or not vacCard
             or not gender
             or not description
+            or not animalName
         ):
             message = "Please fill out the form!"
             return render_template("shelter/registerPet.html", message=message)
         # control for db
         elif (
-            len(animalType) > 50
+            len(animalType) > 11
             or len(animalBreed) > 50
             or len(gender) > 10
             or len(description) > 250
             or len(vacCard) > 250
+            or len(animalName) > 50
         ):
             message = "Too long texts!"
             return render_template("register.html", message=message)
@@ -714,15 +725,21 @@ def registerPet():
             pets = cursor.fetchall()
             lastId = 354
             # Manuel primary key increment
+            maxNum = 0
             for pet in pets:
                 lastId = int(pet["Pet_ID"][1:])
-            nextId = "P" + str(lastId + 1)
+                if maxNum<lastId:
+                    maxNum = lastId
+            nextId = "P" + str(maxNum + 1)
+            
+            
             # insert new Pet
             cursor.execute(
-                "INSERT INTO Pet (Pet_ID, Name, Breed, Date_of_Birth, Age, Gender, Description, Adoption_Status, Medical_History) VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                "INSERT INTO Pet (Pet_ID, Type, Name, Breed, Date_of_Birth, Age, Gender, Description, Adoption_Status, Medical_History, adoption_Fee) VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                 (
                     nextId,
                     animalType,
+                    animalName,
                     animalBreed,
                     dateOfBirth,
                     age,
@@ -730,6 +747,7 @@ def registerPet():
                     description,
                     "notAdopted",
                     vacCard,
+                    animalFee,
                 ),
             )
             mysql.connection.commit()
@@ -746,7 +764,7 @@ def registerPet():
             )
             mysql.connection.commit()
 
-        cursor.execute("SELECT * FROM lists")
+        cursor.execute("SELECT * FROM Pet")
         allPets = cursor.fetchall()
         # must be changed in the prod
         message = allPets
