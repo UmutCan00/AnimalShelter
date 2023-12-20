@@ -26,15 +26,17 @@ CREATE TABLE Pet (
     Description TEXT,
     Adoption_Status VARCHAR(20),
     Medical_History TEXT
+    Adoption_Fee INT
+
 );
 
 INSERT INTO Pet
 VALUES
-    ('P001', 'Cat','pet name 1', 'Tekir', '1800-01-01', 12, 'email', 'des1', 'Approved', 'grip'),
-    ('P002', 'Cat','pet name 2', 'Sarman', '1800-01-02', 21, 'male', 'des2', 'Approved', 'flu'),
-    ('P003', 'Cat','pet name 3', 'Siyam', '1800-01-03', 123, 'female', 'des3', 'Unapproved', 'fever'),
-    ('P004', 'Cat','pet name 4', 'British', '1800-01-04', 1234, 'male', 'des4', 'Unapproved', 'none'),
-    ('P005', 'Cat','pet name 5', 'Scottish', '1800-01-05', 12345, 'female', 'des5', 'Unapproved', 'chickenpox');
+    ('P001', 'Cat','pet name 1', 'Tekir', '1800-01-01', 12, 'email', 'des1', 'Approved', 'grip', 1000),
+    ('P002', 'Cat','pet name 2', 'Sarman', '1800-01-02', 21, 'male', 'des2', 'Approved', 'flu', 2500),
+    ('P003', 'Cat','pet name 3', 'Siyam', '1800-01-03', 123, 'female', 'des3', 'Unapproved', 'fever', 2000),
+    ('P004', 'Cat','pet name 4', 'British', '1800-01-04', 1234, 'male', 'des4', 'Unapproved', 'none', 3000),
+    ('P005', 'Cat','pet name 5', 'Scottish', '1800-01-05', 12345, 'female', 'des5', 'Unapproved', 'chickenpox', 1500);
 
 CREATE TABLE AnimalShelter (
     User_ID CHAR(11) PRIMARY KEY,

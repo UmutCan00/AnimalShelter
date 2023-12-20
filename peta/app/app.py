@@ -825,6 +825,8 @@ def pet_search():
         pet_type = request.form.get('pet_type')
         min_age = request.form.get('min_age')
         max_age = request.form.get('max_age')
+        min_fee = request.form.get('min_fee')
+        max_fee = request.form.get('max_fee')
         gender = request.form.get('gender')
 
         # Perform the search and filter in the database
@@ -851,6 +853,12 @@ def pet_search():
         if max_age:
             sql_query += f" AND P.Age <= {max_age}"
 
+        if min_fee:
+            sql_query += f" AND P.Adoption_Fee >= {min_fee}"
+
+        if max_fee:
+            sql_query += f" AND P.Adoption_Fee <= {max_fee}"
+
         if gender:
             sql_query += f" AND P.Gender = '{gender}'"
 
@@ -862,7 +870,7 @@ def pet_search():
     cursor.execute(sql_query)
     pets = cursor.fetchall()
     return render_template('pet_search_page.html', pets=pets)
-
+    
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(debug=True, host="0.0.0.0", port=port)
