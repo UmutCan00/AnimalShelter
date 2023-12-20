@@ -12,8 +12,11 @@ INSERT INTO user
 VALUES
     ('U001', '123456', 'a', 'b', 'cenkerakan@email.com', "987897987"),
     ('U002', '123', 'a', 'c', 'cenkerakan@asdmail.com', "46545"),
-    ('V001', '123456', 'umut', 'can1', 'cenkerakan@asdmail.com', '46545'),
-    ('V002', '123456', 'umut', 'can2', 'cenkerakan@asdmail.com', '46545');
+    ('V001', '123456', 'umut', 'can1', 'cenkerakan@qmail.com', '46545'),
+    ('AS001', '1', 'as', '1', 'cenkerakan@as1.com', '46545'),
+    ('AS002', '1', 'as', '1', 'cenkerakan@as2.com', '46545'),
+    ('ADMIN001', '1', 'as', '1', 'cenkerakan@admin.com', '46545'),
+    ('V002', '123456', 'umut', 'can2', 'cenkerakan@wmail.com', '46545');
 
 CREATE TABLE Pet (
     Pet_ID VARCHAR(11) PRIMARY KEY,
@@ -151,6 +154,10 @@ CREATE TABLE Adopter(
     Number_of_Adoptions INT
 );
 
+INSERT INTO Adopter (User_ID, Number_of_Adoptions)
+VALUES
+    ('AD001', 1), 
+    ('AD002', 2);
 
 CREATE TABLE Administrator (
     User_ID CHAR(11) PRIMARY KEY,
@@ -158,6 +165,11 @@ CREATE TABLE Administrator (
     Num_of_Donation_Overseen INT,
     Num_of_Control_Overseen INT
 );
+
+INSERT INTO Administrator (User_ID, Num_of_Adoption_Overseen, Num_of_Donation_Overseen, Num_of_Control_Overseen)
+VALUES
+    ('ADMIN001', 1, 2, 3), 
+    ('ADMIN002', 2, 4, 6);
 
 CREATE TABLE ControlForm (
     Form_ID CHAR(11) PRIMARY KEY,
