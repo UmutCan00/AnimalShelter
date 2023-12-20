@@ -1185,6 +1185,11 @@ def admin_panel():
 
     if request.method == "POST":
         pet_id = request.form.get("pet_id")
+        cursor.execute(
+            "SELECT Application_ID FROM Pet_Adoption WHERE Pet_ID = %s", (pet_id,)
+        )
+
+        cursor = mysql.connection.cursor()
         if "pet_id" in request.form and "mark_unavailable" in request.form:
             pet_id = request.form.get("pet_id")
 
@@ -1200,7 +1205,7 @@ def admin_panel():
         else:
             # Handle other cases or errors here
             pass
-        cursor = mysql.connection.cursor()
+
         cursor.execute(
             "SELECT Application_ID FROM Pet_Adoption WHERE Pet_ID = %s", (pet_id,)
         )

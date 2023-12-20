@@ -291,3 +291,45 @@ CREATE TABLE pet_health_report (
     FOREIGN KEY (Pet_ID) REFERENCES Pet(Pet_ID) ON DELETE CASCADE,
     FOREIGN KEY (Report_ID) REFERENCES PetHealthReport(Report_ID) ON DELETE CASCADE
 );
+DELIMITER //
+
+CREATE TRIGGER Create_Has_Pet AFTER UPDATE ON AdoptionApplication
+FOR EACH ROW
+BEGIN
+    DECLARE pet_id_var CHAR(11);
+    DECLARE user_id_var CHAR(11);
+    
+    IF NEW.Application_Status = 'Approved' THEN
+        SELECT PA.Pet_ID, AA.User_ID INTO pet_id_var, user_id_var
+        FROM Pet_Adoption PA, AdoptionApplication AA
+        WHERE AA.Application_ID = NEW.Application_ID AND PA.Application_ID = AA.Application_ID;
+        
+        INSERT INTO Has_Pet (Pet_ID, User_ID) VALUES (pet_id_var, user_id_var);
+    END IF;
+END;
+//
+
+DELIMITER ;
+
+
+
+
+DELIMITER //
+
+CREATE TRIGGER UpdateAnimalCount
+AFTER INSERT ON lists
+FOR EACH ROW
+BEGIN
+    IF NEW.User_ID IN (SELECT User_ID FROM AnimalShelter) THEN
+        UPDATE AnimalShelter
+        SET Number_of_Animals = Number_of_Animals + 1
+        WHERE User_ID = NEW.User_ID;
+    ELSE
+        INSERT INTO AnimalShelter (User_ID, Number_of_Animals)
+        VALUES (NEW.User_ID, 1);
+    END IF;
+END;
+//
+
+DELIMITER ;
+
