@@ -25,9 +25,8 @@ CREATE TABLE Pet (
     Gender VARCHAR(10),
     Description TEXT,
     Adoption_Status VARCHAR(20),
-    Medical_History TEXT
+    Medical_History TEXT,
     Adoption_Fee INT
-
 );
 
 INSERT INTO Pet
