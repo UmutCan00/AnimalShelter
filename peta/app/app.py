@@ -754,7 +754,7 @@ def admin_panel():
                 FROM Pet P 
                 JOIN Pet_Adoption PA ON P.Pet_ID = PA.Pet_ID
                 JOIN AdoptionApplication AA ON PA.Application_ID = AA.Application_ID
-                WHERE AA.Application_Status <> 'Approved'
+                WHERE AA.Application_Status = 'Unapproved'
             """
         )
 
@@ -762,9 +762,9 @@ def admin_panel():
         
         cursor.execute("""
                        SELECT Pet.*
-            FROM Pet
-            LEFT JOIN Pet_Adoption ON Pet.Pet_ID = Pet_Adoption.Pet_ID
-            WHERE Pet_Adoption.Pet_ID IS NULL
+                        FROM Pet
+                        LEFT JOIN Pet_Adoption ON Pet.Pet_ID = Pet_Adoption.Pet_ID
+                        WHERE Pet_Adoption.Pet_ID IS NULL AND Pet.Adoption_Status = 'Unapproved'
                        """)
         
         pet_data2 = cursor.fetchall()
@@ -772,75 +772,38 @@ def admin_panel():
 
         cursor.execute("""
                        SELECT V.User_ID, U.First_Middle_Name, U.Last_Name, COUNT(A.Appointment_ID) AS NumAppointments
-            FROM Veterinarian V
-            LEFT JOIN vet_appoint VA ON V.User_ID = VA.User_ID
-            LEFT JOIN Appointment A ON VA.Appointment_ID = A.Appointment_ID
-            LEFT JOIN user U ON V.User_ID = U.User_ID
-            GROUP BY V.User_ID, U.First_Middle_Name, U.Last_Name
-            ORDER BY NumAppointments DESC
-            LIMIT 3
+                        FROM Veterinarian V
+                        LEFT JOIN vet_appoint VA ON V.User_ID = VA.User_ID
+                        LEFT JOIN Appointment A ON VA.Appointment_ID = A.Appointment_ID
+                        LEFT JOIN user U ON V.User_ID = U.User_ID
+                        GROUP BY V.User_ID, U.First_Middle_Name, U.Last_Name
+                        ORDER BY NumAppointments DESC
+                        LIMIT 3
                        """)    
         
         vet_data = cursor.fetchall()
 
         cursor.execute("""
-                       SELECT U.User_ID, U.First_Middle_Name, U.Last_Name, COUNT(PA.Pet_ID) AS NumAdoptedPets
-            FROM user U
-            LEFT JOIN AdoptionApplication AA ON U.User_ID = AA.User_ID
-            LEFT JOIN Pet_Adoption PA ON AA.Application_ID = PA.Application_ID
-            GROUP BY U.User_ID
-            ORDER BY NumAdoptedPets DESC
-            LIMIT 3
+                       SELECT U.User_ID, U.First_Middle_Name, U.Last_Name, COUNT(HP.Pet_ID) AS NumAdoptedPets
+                            FROM user U
+                            LEFT JOIN Has_Pet HP ON U.User_ID = HP.User_ID
+                            GROUP BY U.User_ID
+                            ORDER BY NumAdoptedPets DESC
+                            LIMIT 3
                        """)
         
         adopt_data = cursor.fetchall()
 
         cursor.execute("""
-                       SELECT P.Breed, COUNT(PA.Pet_ID) AS NumAdoptions
-            FROM Pet P
-            LEFT JOIN Pet_Adoption PA ON P.Pet_ID = PA.Pet_ID
-            GROUP BY P.Breed
-            ORDER BY NumAdoptions DESC
-            LIMIT 3
+                       SELECT P.Breed, COUNT(P.Pet_ID) AS NumAdoptions
+                        FROM Pet P
+                        WHERE P.Adoption_Status = 'Approved'
+                        GROUP BY P.Breed
+                        ORDER BY NumAdoptions DESC
+                        LIMIT 3
                        """)
                 
         breed_data = cursor.fetchall()
-
-        #mock data starts here
-        pet_list = []
-
-        for _ in range(3):
-            pet = pet_details.copy()  # Create a copy to avoid modifying the original dictionary
-            pet["Pet_ID"] = str(int(pet["Pet_ID"]) + len(pet_list) + 1)  # Increment Pet_ID for each new pet
-            pet_list.append(pet)
-        
-        pet_data = pet_list
-        pet_data2 = pet_list
-
-        vet_sample = [
-            {"User_ID": "V001", "First_Middle_Name": "umut", "Last_Name": "can1", "NumAppointments": 10},
-            {"User_ID": "V002", "First_Middle_Name": "umut", "Last_Name": "can2", "NumAppointments": 8},
-            {"User_ID": "V003", "First_Middle_Name": "john", "Last_Name": "doe", "NumAppointments": 5},
-        ]      
-
-        vet_data = vet_sample
-
-        adopt_sample = [
-            {"User_ID": "U001", "First_Middle_Name": "a", "Last_Name": "b", "NumAdoptedPets": 2},
-            {"User_ID": "U002", "First_Middle_Name": "a", "Last_Name": "c", "NumAdoptedPets": 1},
-            {"User_ID": "V001", "First_Middle_Name": "umut", "Last_Name": "can1", "NumAdoptedPets": 0},
-        ]
-
-        adopt_data = adopt_sample
-
-        breed_sample = [
-            {"Breed": "Siyam", "NumAdoptions": 3},
-            {"Breed": "British", "NumAdoptions": 1},
-            {"Breed": "Scottish", "NumAdoptions": 1},
-        ]
-
-        breed_data = breed_sample
-        #mock data ends here
 
 
         return render_template("admin_panel.html", pet_data = pet_data, 

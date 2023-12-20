@@ -116,13 +116,16 @@
 					<div class="item">
                         <div>Name: {{ pet.Name }}, Breed: {{ pet.Breed }}, Age: {{ pet.Age }}</div>
 						<div class="container">
-						<button>Approve</button>
-						<button>Delete</button>
+                            <form method="POST">
+                                <button>See Details</button>
+                                <button>Approve</button>
+                                <button>Delete</button>
+                            </form>
+
 					    </div>
 					</div>
 				{% endfor %}
 			</div>
-			
 			<div class="list">
                 <div class="list-title">Available Pets</div>
 				{% for pet in pet_data2 %}
