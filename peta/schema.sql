@@ -111,16 +111,16 @@ CREATE TABLE Appointment (
 CREATE TABLE vet_appoint(
     Appointment_ID CHAR(11),
     User_ID CHAR(11),
-    FOREIGN KEY (Appointment_ID) REFERENCES Appointment (Appointment_ID) ON DELETE CASCADE,
-    FOREIGN KEY (User_ID) REFERENCES Veterinarian (User_ID) ON DELETE CASCADE,
-)
+    FOREIGN KEY (Appointment_ID) REFERENCES Appointment(Appointment_ID) ON DELETE CASCADE,
+    FOREIGN KEY (User_ID) REFERENCES user(User_ID) ON DELETE CASCADE
+);
 
 CREATE TABLE met (
     Pet_ID CHAR(11),
     Date DATE,
     Time TIME,
-    FOREIGN KEY (Pet_ID) REFERENCES Pet (Pet_ID) ON DELETE CASCADE,
-    FOREIGN KEY (Date, Time) REFERENCES Meet_And_Greet (Date, Time) ON DELETE CASCADE
+    FOREIGN KEY (Pet_ID) REFERENCES Pet(Pet_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Date, Time) REFERENCES Meet_And_Greet(Date, Time) ON DELETE CASCADE
 );
 
 CREATE TABLE Veterinarian (
