@@ -459,6 +459,17 @@ def adoption_application(id):
 
             return redirect(url_for("home"))
 
+        elif "delete_meet" in request.form:
+            meet_date = request.form.get("meet_date")
+            meet_time = request.form.get("meet_time")
+
+            cursor.execute(
+                "DELETE FROM Meet_And_Greet WHERE Date = %s AND Time = %s AND User_ID = %s",
+                (meet_date, meet_time, session["userid"]),
+            )
+            mysql.connection.commit()
+            return redirect(url_for("adoption_application", id=id))
+
     return "Invalid Request", 400
 
 

@@ -9,10 +9,11 @@
 <hr>
 
 <div>
+    <!-- Adoption Application Details -->
     <h2>Adoption Application Details</h2>
-    <p>Donation Fee: ${{ application.Donation_Fee }}</p>
-    <p>Admin Approved: {% if application.Admin_Approved %}Yes{% else %}No{% endif %}</p>
-    <p>Shelter Approved: {% if application.Shelter_Approved %}Yes{% else %}No{% endif %}</p>
+    <p>Application ID: {{ application.Application_ID }}</p>
+    <p>User ID: {{ application.User_ID }}</p>
+    <p>Application Date: {{ application.Application_Date }}</p>
 </div>
 
 <hr>
@@ -30,13 +31,24 @@
                 </tr>
             </thead>
             <tbody>
-                {% for meet in meet_and_greet %}
-                <tr>
-                    <td>{{ meet.Date }}</td>
-                    <td>{{ meet.Time }}</td>
-                    <!-- Display other Meet and Greet details -->
-                </tr>
-                {% endfor %}
+                <div>
+                    <h2>Existing Meet and Greet Sections</h2>
+                    {% if meet_and_greet %}
+                    {% for meet in meet_and_greet %}
+                    <div>
+                        <p>Meet and Greet Date: {{ meet.Date }}</p>
+                        <p>Meet and Greet Time: {{ meet.Time }}</p>
+                        <form action="" method="post">
+                            <input type="hidden" name="meet_date" value="{{ meet.Date }}">
+                            <input type="hidden" name="meet_time" value="{{ meet.Time }}">
+                            <button type="submit" name="delete_meet">Delete Meet and Greet</button>
+                        </form>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <p>No Meet and Greet sections found for this pet.</p>
+                    {% endif %}
+                </div>
             </tbody>
         </table>
         {% else %}
@@ -70,9 +82,9 @@
 <hr>
 
 <div>
+    <!-- Application Status -->
     <h2>Application Status</h2>
-    <p>Status: {% if application.Admin_Approved and application.Shelter_Approved %}Approved{% else %}Pending{% endif %}
-    </p>
+    <p>Status: {{ application.Application_Status }}</p>
 </div>
 
 <hr>
