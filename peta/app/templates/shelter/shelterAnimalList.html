@@ -26,7 +26,7 @@
         <div class="card">
             <h1>Add New Pet to System</h1>
             <ul>
-                <li>YOUR PETS ADOPTED FROM THIS PLATFORM &#x21E9;</li>
+                <li>Pets in This Shelter &#x21E9;</li>
                 {% for item in message %}
                 <li>
                     <div>Type:{{item['Name']}}, Breed:{{item['Breed']}}, Age:{{item['Age']}}</div>
@@ -42,6 +42,14 @@
                 Current Number of Posts: {{AN['Number_of_Animals']}}
                 {% endfor %}
             </h3>
+            <button class="button" style="background-color: blue;" onclick="redirectToNewPetForm()">Add New Pet to the Shelter</button>
+
+            <script>
+                function redirectToNewPetForm() {
+                    var redirectToURL = "http://localhost:5000/registerPet";
+                    window.location.href = redirectToURL;
+                }
+            </script>
         </div>
     </div>
 </body>

@@ -53,9 +53,46 @@ def login():
         )
         user = cursor.fetchone()
         if user:
-            print("entered")
-            session["loggedin"] = True
-            session["userid"] = user["User_ID"]
+            userId = user["User_ID"]
+            # now lets find the user type
+            
+            cursor.execute(
+                "SELECT * FROM Veterinarian WHERE User_ID = % s",
+                (
+                    userId,
+                ),
+            )
+            veterinarian = cursor.fetchone()
+            #message = veterinarian
+            if veterinarian:
+                session["userType"] = "Veterinarian"
+                session["userid"] = userId
+            else:
+                cursor.execute(
+                    "SELECT * FROM AnimalShelter WHERE User_ID = % s",
+                    (
+                        userId,
+                    ),
+                )
+                animalShelter = cursor.fetchone()
+                if animalShelter:
+                    session["userType"] = "AnimalShelter"
+                    session["userid"] = userId
+                    return redirect(url_for("shelterAnimalList"))
+                else:
+                    cursor.execute(
+                        "SELECT * FROM AnimalShelter WHERE User_ID = % s",
+                        (
+                            userId,
+                        ),
+                    )
+                    adminUser = cursor.fetchone()
+                    if adminUser:
+                        session["userType"] = "Admin"
+                        session["userid"] = userId
+                    else:
+                        session["userType"] = "Adopter"
+                        session["userid"] = userId
             message = "Logged in successfully!"
             return redirect(url_for("suite"))
         else:
@@ -650,6 +687,7 @@ def registerPet():
         and "vacCard" in request.form
         and "gender" in request.form
         and "description" in request.form
+        and "name" in request.form
     ):
         # real
         # userid = session["userid"]
@@ -664,6 +702,8 @@ def registerPet():
         vacCard = request.form["vacCard"]
         gender = request.form["gender"]
         description = request.form["description"]
+        animalName = request.form["name"]
+        animalFee = request.form["fee"]
         # for test
         printer = (
             "animalType: ",
@@ -678,8 +718,14 @@ def registerPet():
             gender,
             "description: ",
             description,
+            "animalName: ",
+            animalName,
+            "animalFee: ",
+            animalFee,
         )
         message = printer
+        if not animalFee:
+            animalFee = 0
         # control missing info
         if (
             not animalType
@@ -688,16 +734,18 @@ def registerPet():
             or not vacCard
             or not gender
             or not description
+            or not animalName
         ):
             message = "Please fill out the form!"
             return render_template("shelter/registerPet.html", message=message)
         # control for db
         elif (
-            len(animalType) > 50
+            len(animalType) > 11
             or len(animalBreed) > 50
             or len(gender) > 10
             or len(description) > 250
             or len(vacCard) > 250
+            or len(animalName) > 50
         ):
             message = "Too long texts!"
             return render_template("register.html", message=message)
@@ -724,15 +772,21 @@ def registerPet():
             pets = cursor.fetchall()
             lastId = 354
             # Manuel primary key increment
+            maxNum = 0
             for pet in pets:
                 lastId = int(pet["Pet_ID"][1:])
-            nextId = "P" + str(lastId + 1)
+                if maxNum<lastId:
+                    maxNum = lastId
+            nextId = "P" + str(maxNum + 1)
+            
+            
             # insert new Pet
             cursor.execute(
-                "INSERT INTO Pet (Pet_ID, Name, Breed, Date_of_Birth, Age, Gender, Description, Adoption_Status, Medical_History) VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                "INSERT INTO Pet (Pet_ID, Type, Name, Breed, Date_of_Birth, Age, Gender, Description, Adoption_Status, Medical_History, adoption_Fee) VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                 (
                     nextId,
                     animalType,
+                    animalName,
                     animalBreed,
                     dateOfBirth,
                     age,
@@ -740,6 +794,7 @@ def registerPet():
                     description,
                     "notAdopted",
                     vacCard,
+                    animalFee,
                 ),
             )
             mysql.connection.commit()
@@ -756,7 +811,7 @@ def registerPet():
             )
             mysql.connection.commit()
 
-        cursor.execute("SELECT * FROM lists")
+        cursor.execute("SELECT * FROM Pet")
         allPets = cursor.fetchall()
         # must be changed in the prod
         message = allPets
@@ -799,12 +854,11 @@ def current_adopted_pets():
 @app.route("/shelterAnimalList", methods=["GET", "POST"])
 def shelterAnimalList():
     if request.method == "GET":
-        # assuming shelterid is stored in session
-        # shelterId = session["shelterId"]
-        shelterId = "AS001"
-        # ^for dev purposes
 
-        userid = session["userid"]
+        shelterId = session["userid"]
+        userType = session["userType"]
+        if not userType == "AnimalShelter":
+            return redirect(url_for("login"))
         if shelterId:
             cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
             cursor.execute(
