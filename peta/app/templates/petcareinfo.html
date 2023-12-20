@@ -35,11 +35,8 @@
                 </p>
                 <p>Medical History: {{ pet.Medical_History }}</p>
                 <div class="button-group">
-                    <a href="/schedule_online_meeting/{{ pet.Pet_ID }}">
-                        <button>Get Online Meeting</button>
-                    </a>
-                    <a href="/schedule_vet_appointment/{{ pet.Pet_ID }}">
-                        <button>Get Vet Appointment</button>
+                    <a href="/see-petcare-info/{{ pet.Type }}">
+                        <button>See Pet Care Information</button>
                     </a>
                 </div>
             </div>

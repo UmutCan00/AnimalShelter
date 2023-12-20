@@ -103,7 +103,7 @@
     <div class="topnav">
         <a href="#">Home</a>
         <a href="#">Pet Adoption</a>
-        <a href="#">Pet Care</a>
+        <a href="/petcare">Pet Care</a>
         <a href="#">Vet Appointment</a>
         <span class="admin-info">Admin Username: your username <a href="#">Logout</a></span>
     </div>
@@ -116,18 +116,16 @@
                 <div class="item">
                     <div>Name: {{ pet.Name }}, Breed: {{ pet.Breed }}, Age: {{ pet.Age }}</div>
                     <div class="container">
-                        <button>Approve</button>
-                        <button>Delete</button>
                         <form method="POST">
                             <button>See Details</button>
                             <button>Approve</button>
                             <button>Delete</button>
                         </form>
+
                     </div>
                 </div>
                 {% endfor %}
             </div>
-
             <div class="list">
                 <div class="list-title">Available Pets</div>
                 {% for pet in pet_data2 %}

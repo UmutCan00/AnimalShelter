@@ -178,6 +178,19 @@ def user_pets():
     return render_template("mypetlist.html", pets=user_pets)
 
 
+@app.route("/petcare")
+def petcare():
+    message = ""
+    user_id = session["userid"]
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute(
+        "SELECT p.* FROM Pet p INNER JOIN Has_Pet hp ON p.Pet_ID = hp.Pet_ID WHERE hp.User_ID = %s",
+        (user_id,),
+    )
+    user_pets = cursor.fetchall()
+    return render_template("petcareinfo.html", pets=user_pets)
+
+
 pet_details = {
     "Pet_ID": "1",
     "Name": "Buddy",
