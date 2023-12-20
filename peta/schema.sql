@@ -195,3 +195,25 @@ CREATE TABLE donates (
     FOREIGN KEY (User_ID) REFERENCES user(User_ID) ON DELETE CASCADE,
     FOREIGN KEY (Donation_Application_ID) REFERENCES DonationApplication(Donation_Application_ID) ON DELETE CASCADE
 );
+
+CREATE TABLE oversees_donation (
+    User_ID CHAR(11),
+    Donation_Application_ID CHAR(11),
+    FOREIGN KEY (User_ID) REFERENCES Administrator(User_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Donation_Application_ID) REFERENCES DonationApplication(Donation_Application_ID) ON DELETE CASCADE
+);
+
+CREATE TABLE oversees_control (
+    User_ID CHAR(11),
+    Form_ID CHAR(11),
+    FOREIGN KEY (User_ID) REFERENCES Administrator(User_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Form_ID) REFERENCES ControlForm(Form_ID) ON DELETE CASCADE
+);
+
+CREATE TABLE oversees_adoption (
+    User_ID CHAR(11),
+    Application_ID CHAR(11),
+    FOREIGN KEY (User_ID) REFERENCES Administrator(User_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Application_ID) REFERENCES AdoptionApplication(Application_ID) ON DELETE CASCADE
+);
+
