@@ -55,6 +55,7 @@ def login():
         if user:
             userId = user["User_ID"]
             # now lets find the user type
+            
             cursor.execute(
                 "SELECT * FROM Veterinarian WHERE User_ID = % s",
                 (
@@ -788,12 +789,11 @@ def current_adopted_pets():
 @app.route("/shelterAnimalList", methods=["GET", "POST"])
 def shelterAnimalList():
     if request.method == "GET":
-        # assuming shelterid is stored in session
-        # shelterId = session["shelterId"]
-        shelterId = "AS001"
-        # ^for dev purposes
 
-        userid = session["userid"]
+        shelterId = session["userid"]
+        userType = session["userType"]
+        if not userType == "AnimalShelter":
+            return redirect(url_for("login"))
         if shelterId:
             cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
             cursor.execute(
