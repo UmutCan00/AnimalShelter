@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            background-color: #f0f0f0;
+
+        }
+
+        h1,h2 {
+            text-align: center;
+            margin: 30px;
+        }
+        .container {
+            display: block;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            border: 1px solid #000;
+            padding: 20px;
+            margin: 10px auto;
+            width: 80%;
+            height: 50%;
+        }
+        .inner-container {
+            display: block;
+            width: 100%;
+            height: 80%;
+            margin-top: 20px;
+            border: 1px solid #000;
+        }
+        .container h1 {
+            margin-top: 0;
+        }
+        .container button {
+            margin-top: 20px;
+            padding: 10px 20px;
+        }
+
+        .pets {
+            width: 100%;
+            border: 1px solid #000;
+            text-align: left;
+            display: grid;
+            grid-template-columns: 40% 30% 30%;
+            padding: 0;
+        }
+
+        .pets-bottom {
+            grid-template-columns: 70% 30%;
+        }
+
+        .pets button {
+            margin-top: 0;
+            margin-left: 50px;
+            height: 100%;
+        }
+
+        .petpage:hover {
+            background-color: darkblue;
+            color: white;
+        }
+
+        .cancel {
+            background-color: red;
+            color: white;
+        }
+
+        .cancel:hover {
+            background-color: darkred;
+        }
+
+        .bottom {
+            height: 40%;
+            margin-bottom: 20px;
+        }
+
+        
+
+        .title{
+            grid-column: span 3;
+            font-weight: bold;
+        }
+
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .topnav {
+            background-color: #333;
+            overflow: hidden;
+        }
+
+        .topnav a {
+            float: left;
+            color: #f2f2f2;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+            font-size: 17px;
+        }
+
+        .topnav a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+
+        .topnav a.active {
+            background-color: #04AA6D;
+            color: white;
+        }
+
+        .lean-right {
+            display: flex;
+            justify-content: flex-end;
+        }
+    </style>
+</head>
+<body>
+    <div class="topnav">
+		<a href="/">Home</a>
+        <a href="">Pet Adoption</a>
+        <a href="">Pet Care</a>
+        <a href="">Vet Appointment</a>
+        <a href="">Current Applications</a>
+        <div class ="lean-right">
+            <a class="active" href="login">Login</a>
+            <a href="register">Signup</a>
+        </div>
+	</div>
+
+    <h1>PETA Donor</h1>
+
+    <div class="container">
+        <h2>Current Pets You Own</h2>
+
+        <div class="inner-container">
+            <div class="pets">
+                <p class="title">Your Pets in Donation Application on This Platform</p>
+            </div>
+            <div class="pets">
+                <p>Type: Cat, Breed: Persian, Age: 2</p>
+                <button class="petpage">See Pet Page</button>
+                <button class="cancel">Cancel Donation Application</button>
+            </div>
+
+
+            <button class="addpetbutton">Add Pet to Donate</button>
+
+        </div>
+
+    
+        
+    </div>
+
+    <div class="container bottom">
+        <div class="inner-container">
+            <div class="pets">
+                <p class="title">Your Pets Donated in This Platform (Total Donation = 1)</p>
+            </div>
+            <div class="pets pets-bottom">
+                <p>Type: Cat, Breed: Persian, Age: 2</p>
+                <button class="petpage">See Pet Page</button>
+            </div>
+
+        </div>
+
+        
+    </div>
+
+    <footer>PETA</footer>
+</body>
+</html>

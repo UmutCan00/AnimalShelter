@@ -466,6 +466,10 @@ def shelterAnimalList():
         else:
             return redirect(url_for("login"))
 
+@app.route('/deneme', methods=['GET', 'POST'])
+def deneme():
+    print("asds")
+    return render_template("other/adoptionApplicationForm.html")
 
 # Main Page Function
 @app.route("/tasks", methods=["GET", "POST"])
@@ -914,3 +918,4 @@ def pet_search():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(debug=True, host="0.0.0.0", port=port)
+
