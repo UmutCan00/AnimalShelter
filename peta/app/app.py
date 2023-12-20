@@ -752,9 +752,10 @@ def admin_panel():
             """
                 SELECT P.*
                 FROM Pet P 
-                NATURAL JOIN Pet_Adoption PA 
-                NATURAL JOIN AdoptionApplication AA 
-                WHERE AA.Application_Status <> 'Approved'
+                JOIN Pet_Adoption PA ON P.Pet_ID = PA.Pet_ID
+                JOIN AdoptionApplication AA ON PA.Application_ID = AA.Application_ID
+                WHERE AA.Application_Status <> 'Approved';
+
             """
         )
 
