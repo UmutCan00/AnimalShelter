@@ -1,0 +1,48 @@
+<div>
+    <h1>Pet Details</h1>
+    <p>Pet ID: {{ pet.Pet_ID }}</p>
+    <p>Name: {{ pet.Name }}</p>
+    <p>Breed: {{ pet.Breed }}</p>
+</div>
+
+<hr>
+
+<div>
+    <h2>Adoption Application Details</h2>
+    <p>Donation Fee: ${{ application.Donation_Fee }}</p>
+    <p>Admin Approved: {% if application.Admin_Approved %}Yes{% else %}No{% endif %}</p>
+    <p>Shelter Approved: {% if application.Shelter_Approved %}Yes{% else %}No{% endif %}</p>
+</div>
+
+<hr>
+
+<div>
+    <h2>Schedule a Meet and Greet</h2>
+    <form action="" method="post">
+        <div>
+            <label for="date">Date:</label>
+            <input type="datetime-local" id="date" name="date" required>
+        </div>
+        <div>
+            <label for="phone_number">Phone Number:</label>
+            <input type="tel" id="phone_number" name="phone_number" required>
+        </div>
+        <button type="submit" name="schedule_meet">Schedule Meet and Greet</button>
+    </form>
+</div>
+
+<hr>
+
+<div>
+    <h2>Application Status</h2>
+    <p>Status: {% if application.Admin_Approved and application.Shelter_Approved %}Approved{% else %}Pending{% endif %}</p>
+</div>
+
+<hr>
+
+<div>
+    <h2>Actions</h2>
+    <form action="" method="post">
+        <button type="submit" name="cancel_application">Cancel Application</button>
+    </form>
+</div>

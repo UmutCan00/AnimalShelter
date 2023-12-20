@@ -11,7 +11,9 @@ CREATE TABLE user (
 INSERT INTO user
 VALUES
     ('U001', '123456', 'a', 'b', 'cenkerakan@email.com', "987897987"),
-    ('U002', '123', 'a', 'c', 'cenkerakan@asdmail.com', "46545");
+    ('U002', '123', 'a', 'c', 'cenkerakan@asdmail.com', "46545"),
+    ('V001', '123456', 'umut', 'can1', 'cenkerakan@asdmail.com', '46545'),
+    ('V002', '123456', 'umut', 'can2', 'cenkerakan@asdmail.com', '46545');
 
 CREATE TABLE Pet (
     Pet_ID VARCHAR(11) PRIMARY KEY,
@@ -82,3 +84,52 @@ VALUES
     ('AA001', 'P001'),
     ('AA002', 'P002'),
     ('AA003', 'P003');
+
+CREATE TABLE Has_Pet (
+    Pet_ID VARCHAR(11),
+    User_ID CHAR(11),
+    FOREIGN KEY (Pet_ID) REFERENCES Pet (Pet_ID) ON DELETE CASCADE,
+    FOREIGN KEY (User_ID) REFERENCES user(User_ID) ON DELETE CASCADE
+);
+
+CREATE TABLE Meet_And_Greet (
+    Date DATE,
+    Time TIME,
+    Pet_ID INT,
+    User_ID INT,
+    PRIMARY KEY (Date, Time)
+);
+
+CREATE TABLE Appointment (
+    Appointment_ID CHAR(11) PRIMARY KEY,
+    Date DATE,
+    Time TIME,
+    Purpose VARCHAR(255)
+);
+
+CREATE TABLE met (
+    Pet_ID CHAR(11),
+    Date DATE,
+    Time TIME,
+    FOREIGN KEY (Pet_ID) REFERENCES Pet (Pet_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Date, Time) REFERENCES Meet_And_Greet (Date, Time) ON DELETE CASCADE
+);
+
+CREATE TABLE Veterinarian (
+    User_ID CHAR(11) PRIMARY KEY,
+    Specialization VARCHAR(50),
+    Clinic_Name VARCHAR(50),
+    Clinic_ID CHAR(11),
+    Status VARCHAR(20),
+    FOREIGN KEY (User_ID) REFERENCES user(User_ID)
+);
+
+INSERT INTO Veterinarian (User_ID, Specialization, Clinic_Name, Clinic_ID, Status)
+VALUES
+    ('V001', 'General Medicine', '123', 'C001', 'Active'),
+    ('V002', 'Dermatology', '123', 'C002', 'Active');
+
+INSERT INTO Has_Pet (Pet_ID, User_ID)
+VALUES
+    ('P001', 'U001'), 
+    ('P002', 'U002');  
