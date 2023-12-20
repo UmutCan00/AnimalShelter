@@ -599,6 +599,29 @@ def adoption_application(id):
             mysql.connection.commit()
             return redirect(url_for("adoption_application", id=id))
 
+        user_id = session["userid"]
+        if not user_id:
+            return "User not logged in", 403
+
+        cursor.execute(
+            "SELECT p.*, aa.* "
+            "FROM Pet p "
+            "JOIN Pet_Adoption pa ON p.Pet_ID = pa.Pet_ID "
+            "JOIN AdoptionApplication aa ON aa.Application_ID = pa.Application_ID "
+            "WHERE aa.Application_ID = %s",
+            (id),
+        )
+        pet_application = cursor.fetchone()
+
+        if not pet_application:
+            return "Pet or application not found", 404
+
+        return render_template(
+            "adoption_application.html",
+            pet=pet_application,
+            application=pet_application,
+        )
+
     return "Invalid Request", 400
 
 
@@ -1086,72 +1109,71 @@ def analysis():
 
 @app.route("/admin_panel", methods=["GET", "POST"])
 def admin_panel():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute(
+        """
+        SELECT P.*, AA.*
+            FROM Pet P 
+            JOIN Pet_Adoption PA ON P.Pet_ID = PA.Pet_ID
+            JOIN AdoptionApplication AA ON PA.Application_ID = AA.Application_ID
+            WHERE AA.Application_Status = 'Unapproved'
+        """
+    )
+
+    pet_data = cursor.fetchall()
+
+    cursor.execute(
+        """
+                    SELECT Pet.*
+                    FROM Pet
+                    LEFT JOIN Pet_Adoption ON Pet.Pet_ID = Pet_Adoption.Pet_ID
+                    WHERE Pet_Adoption.Pet_ID IS NULL AND Pet.Adoption_Status = 'Unapproved'
+                    """
+    )
+
+    pet_data2 = cursor.fetchall()
+
+    cursor.execute(
+        """
+                    SELECT V.User_ID, U.First_Middle_Name, U.Last_Name, COUNT(A.Appointment_ID) AS NumAppointments
+                    FROM Veterinarian V
+                    LEFT JOIN vet_appoint VA ON V.User_ID = VA.User_ID
+                    LEFT JOIN Appointment A ON VA.Appointment_ID = A.Appointment_ID
+                    LEFT JOIN user U ON V.User_ID = U.User_ID
+                    GROUP BY V.User_ID, U.First_Middle_Name, U.Last_Name
+                    ORDER BY NumAppointments DESC
+                    LIMIT 3
+                    """
+    )
+
+    vet_data = cursor.fetchall()
+
+    cursor.execute(
+        """
+                    SELECT U.User_ID, U.First_Middle_Name, U.Last_Name, COUNT(HP.Pet_ID) AS NumAdoptedPets
+                        FROM user U
+                        LEFT JOIN Has_Pet HP ON U.User_ID = HP.User_ID
+                        GROUP BY U.User_ID
+                        ORDER BY NumAdoptedPets DESC
+                        LIMIT 3
+                    """
+    )
+
+    adopt_data = cursor.fetchall()
+
+    cursor.execute(
+        """
+                    SELECT P.Breed, COUNT(P.Pet_ID) AS NumAdoptions
+                    FROM Pet P
+                    WHERE P.Adoption_Status = 'Approved'
+                    GROUP BY P.Breed
+                    ORDER BY NumAdoptions DESC
+                    LIMIT 3
+                    """
+    )
+
+    breed_data = cursor.fetchall()
     if request.method == "GET":
-        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        cursor.execute(
-            """
-            SELECT P.*
-                FROM Pet P 
-                JOIN Pet_Adoption PA ON P.Pet_ID = PA.Pet_ID
-                JOIN AdoptionApplication AA ON PA.Application_ID = AA.Application_ID
-                WHERE AA.Application_Status = 'Unapproved'
-            """
-        )
-
-        pet_data = cursor.fetchall()
-
-        cursor.execute(
-            """
-                       SELECT Pet.*
-                        FROM Pet
-                        LEFT JOIN Pet_Adoption ON Pet.Pet_ID = Pet_Adoption.Pet_ID
-                        WHERE Pet_Adoption.Pet_ID IS NULL AND Pet.Adoption_Status = 'Unapproved'
-                       """
-        )
-
-        pet_data2 = cursor.fetchall()
-
-        cursor.execute(
-            """
-                       SELECT V.User_ID, U.First_Middle_Name, U.Last_Name, COUNT(A.Appointment_ID) AS NumAppointments
-                        FROM Veterinarian V
-                        LEFT JOIN vet_appoint VA ON V.User_ID = VA.User_ID
-                        LEFT JOIN Appointment A ON VA.Appointment_ID = A.Appointment_ID
-                        LEFT JOIN user U ON V.User_ID = U.User_ID
-                        GROUP BY V.User_ID, U.First_Middle_Name, U.Last_Name
-                        ORDER BY NumAppointments DESC
-                        LIMIT 3
-                       """
-        )
-
-        vet_data = cursor.fetchall()
-
-        cursor.execute(
-            """
-                       SELECT U.User_ID, U.First_Middle_Name, U.Last_Name, COUNT(HP.Pet_ID) AS NumAdoptedPets
-                            FROM user U
-                            LEFT JOIN Has_Pet HP ON U.User_ID = HP.User_ID
-                            GROUP BY U.User_ID
-                            ORDER BY NumAdoptedPets DESC
-                            LIMIT 3
-                       """
-        )
-
-        adopt_data = cursor.fetchall()
-
-        cursor.execute(
-            """
-                       SELECT P.Breed, COUNT(P.Pet_ID) AS NumAdoptions
-                        FROM Pet P
-                        WHERE P.Adoption_Status = 'Approved'
-                        GROUP BY P.Breed
-                        ORDER BY NumAdoptions DESC
-                        LIMIT 3
-                       """
-        )
-
-        breed_data = cursor.fetchall()
-
         return render_template(
             "admin_panel.html",
             pet_data=pet_data,
@@ -1159,6 +1181,53 @@ def admin_panel():
             vet_data=vet_data,
             adopt_data=adopt_data,
             breed_data=breed_data,
+        )
+
+    if request.method == "POST":
+        pet_id = request.form.get("pet_id")
+        if "pet_id" in request.form and "mark_unavailable" in request.form:
+            pet_id = request.form.get("pet_id")
+
+            # Perform a DELETE operation on Pet table to remove the pet
+            cursor = mysql.connection.cursor()
+            cursor.execute("DELETE FROM Pet WHERE Pet_ID = %s", (pet_id,))
+            mysql.connection.commit()
+
+        elif "approve" in request.form:
+            status = "Approved"
+        elif "reject" in request.form:
+            status = "Rejected"
+        else:
+            # Handle other cases or errors here
+            pass
+        cursor = mysql.connection.cursor()
+        cursor.execute(
+            "SELECT Application_ID FROM Pet_Adoption WHERE Pet_ID = %s", (pet_id,)
+        )
+        result = cursor.fetchone()
+        if result:
+            application_id = result
+            try:
+                cursor.execute(
+                    "UPDATE AdoptionApplication SET Application_Status = %s WHERE Application_ID = %s",
+                    (status, application_id),
+                )
+                mysql.connection.commit()
+                message = "Status updated successfully!"
+            except Exception as e:
+                mysql.connection.rollback()
+                message = f"Error: {str(e)}"
+        else:
+            message = "No application found for this pet."
+        message += "Button submit"
+        return render_template(
+            "admin_panel.html",
+            pet_data=pet_data,
+            pet_data2=pet_data2,
+            vet_data=vet_data,
+            adopt_data=adopt_data,
+            breed_data=breed_data,
+            message=message,  # Pass the message for status update
         )
 
 

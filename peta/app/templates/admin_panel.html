@@ -107,74 +107,84 @@
         <a href="#">Vet Appointment</a>
         <span class="admin-info">Admin Username: your username <a href="#">Logout</a></span>
     </div>
-
+    {% if message is defined and message %}
+    <h2>
+        <div class="alert alert-warning">{{ message }}</div>
+    </h2>
+    {% endif %}
     <div class="content">
         <div class="left-column">
             <div class="list">
-                <div class="list-title">Pet Adoption Applications</div>
-                {% for pet in pet_data %}
-                <div class="item">
-                    <div>Name: {{ pet.Name }}, Breed: {{ pet.Breed }}, Age: {{ pet.Age }}</div>
-                    <div class="container">
+                <div class="list">
+                    <div class="list-title">Pet Adoption Applications</div>
+                    {% for pet in pet_data %}
+                    <div class="item">
+                        <div>Name: {{ pet.Name }}, Breed: {{ pet.Breed }}, Age: {{ pet.Age }}</div>
+                        <div class="container">
+                            <form method="POST">
+                                <input type="hidden" name="pet_id" value="{{ pet.Pet_ID }}">
+                                <button name="details" formaction="/adoption-application/{{ pet.Application_ID }}">See
+                                    Details</button>
+                                <button name="approve" type="submit" value="Approved">Approve</button>
+                                <button name="reject" type="submit" value="Rejected">Reject</button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="list">
+                    <div class="list-title">Available Pets</div>
+                    {% for pet in pet_data2 %}
+                    <div class="item">
+                        <div>Name: {{ pet.Name }}, Breed: {{ pet.Breed }}, Age: {{ pet.Age }}</div>
                         <form method="POST">
-                            <button>See Details</button>
-                            <button>Approve</button>
-                            <button>Delete</button>
+                            <input type="hidden" name="pet_id" value="{{ pet.Pet_ID }}">
+                            <button type="submit" name="mark_unavailable">Delete Pet From System</button>
                         </form>
-
                     </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
-            </div>
-            <div class="list">
-                <div class="list-title">Available Pets</div>
-                {% for pet in pet_data2 %}
-                <div class="item">
-                    <div>Name: {{ pet.Name }}, Breed: {{ pet.Breed }}, Age: {{ pet.Age }}</div>
-                    <button>Mark as Unavailable</button>
-                </div>
-                {% endfor %}
+
+
+
             </div>
 
-
-
-        </div>
-
-        <div class="right-column">
-            <div class="list">
-                <div class="list-title">Top Vet Statistics</div>
-                {% for vet in vet_data %}
-                <div class="item">
-                    <div>Name: {{ vet.First_Middle_Name}}, {{vet.Last_Name}}, Count: {{vet.NumAppointments}}</div>
-                </div>
-                {% endfor %}
-            </div>
-
-            <div class="list">
-
-                <div class="list-title">Top Adopter Statistics</div>
-                {% for adopter in adopt_data %}
-                <div class="item">
-                    <div>Name: {{ adopter.First_Middle_Name}}, {{adopter.Last_Name}}, Count: {{adopter.NumAdoptedPets}}
+            <div class="right-column">
+                <div class="list">
+                    <div class="list-title">Top Vet Statistics</div>
+                    {% for vet in vet_data %}
+                    <div class="item">
+                        <div>Name: {{ vet.First_Middle_Name}}, {{vet.Last_Name}}, Count: {{vet.NumAppointments}}</div>
                     </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
-            </div>
-            <div class="list">
 
+                <div class="list">
 
-                <div class="list-title">Top Pet Statistics</div>
-                {% for breed in breed_data %}
-                <div class="item">
-                    <div>Breed: {{ breed.Breed }}, Count: {{breed.NumAdoptions}}</div>
+                    <div class="list-title">Top Adopter Statistics</div>
+                    {% for adopter in adopt_data %}
+                    <div class="item">
+                        <div>Name: {{ adopter.First_Middle_Name}}, {{adopter.Last_Name}}, Count:
+                            {{adopter.NumAdoptedPets}}
+                        </div>
+                    </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
+                <div class="list">
+
+
+                    <div class="list-title">Top Pet Statistics</div>
+                    {% for breed in breed_data %}
+                    <div class="item">
+                        <div>Breed: {{ breed.Breed }}, Count: {{breed.NumAdoptions}}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+
+
             </div>
-
-
-
         </div>
-    </div>
 </body>
 
 </html>
