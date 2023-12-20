@@ -187,6 +187,8 @@
                     </select>
                     <input type="number" name="min_age" placeholder="Min Age">
                     <input type="number" name="max_age" placeholder="Max Age">
+                    <input type="number" name="min_fee" placeholder="Min Fee">
+                    <input type="number" name="max_fee" placeholder="Max Fee">
                     <select name="gender">
                         <option value="">Select Pet Gender</option>
                         <option value="female">Female</option>
@@ -209,6 +211,7 @@
                         <!-- Change as Shelter name -->   
                         <p>Shelter: {{ pet.User_ID }}</p>
                         <p>Description: {{ pet.Description }}</p>
+                        <p>Adoption Fee: {{ pet.Adoption_Fee }}</p>
                         <div class="button-container">
                             <a href="" class="button">Go to Shelter Page</a>
                         </div>
