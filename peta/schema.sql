@@ -107,6 +107,13 @@ CREATE TABLE Appointment (
     Purpose VARCHAR(255)
 );
 
+CREATE TABLE vet_appoint(
+    Appointment_ID CHAR(11),
+    User_ID CHAR(11),
+    FOREIGN KEY (Appointment_ID) REFERENCES Appointment (Appointment_ID) ON DELETE CASCADE,
+    FOREIGN KEY (User_ID) REFERENCES Veterinarian (User_ID) ON DELETE CASCADE,
+)
+
 CREATE TABLE met (
     Pet_ID CHAR(11),
     Date DATE,

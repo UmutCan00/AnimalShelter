@@ -114,7 +114,7 @@
 				<div class="list-title">Pet Adoption Applications</div>
 				{% for pet in pet_data %}
 					<div class="item">
-                        <div>Type:{{item['Name']}}, Breed:{{item['Breed']}}, Age:{{item['Age']}}</div>
+                        <div>Name: {{ pet.Name }}, Breed: {{ pet.Breed }}, Age: {{ pet.Age }}</div>
 						<div class="container">
 						<button>Approve</button>
 						<button>Delete</button>
@@ -122,21 +122,51 @@
 					</div>
 				{% endfor %}
 			</div>
+			
+			<div class="list">
+                <div class="list-title">Available Pets</div>
+				{% for pet in pet_data2 %}
+                <div class="item">
+                    <div>Name: {{ pet.Name }}, Breed: {{ pet.Breed }}, Age: {{ pet.Age }}</div>
+                    <button>Mark as Unavailable</button>
+                </div>
+				{% endfor %}
+            </div>
+            
 
             
         </div>
 
         <div class="right-column">
             <div class="list">
-                <div class="list-title">Available Pets</div>
-				{% for pet in pet_data %}
+                <div class="list-title">Top Vet Statistics</div>
+				{% for vet in vet_data %}
                 <div class="item">
-                    <div>Type:{{item['Name']}}, Breed:{{item['Breed']}}, Age:{{item['Age']}}</div>
-                    <button>Mark as Unavailable</button>
+                    <div>Name: {{ vet.First_Middle_Name}},  {{vet.Last_Name}}, Count:  {{vet.NumAppointments}}</div>
                 </div>
 				{% endfor %}
             </div>
+            
+                        <div class="list">
 
+            <div class="list-title">Top Adopter Statistics</div>
+				{% for adopter in adopt_data %}
+                <div class="item">
+                    <div>Name: {{ adopter.First_Middle_Name}}, {{adopter.Last_Name}}, Count:  {{adopter.NumAdoptedPets}}</div>
+                </div>
+				{% endfor %}
+            </div>       <div class="list">
+
+
+            <div class="list-title">Top Pet Statistics</div>
+				{% for breed in breed_data %}
+                <div class="item">
+                    <div>Breed: {{ breed.Breed }}, Count: {{breed.NumAdoptions}}</div>
+                </div>
+				{% endfor %}
+            </div>
+            
+            
             
         </div>
     </div>

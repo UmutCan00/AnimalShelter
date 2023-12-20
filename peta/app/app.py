@@ -758,10 +758,53 @@ def admin_panel():
             """
         )
 
-        pets = cursor.fetchall()
-        message = pets
+        pet_data = cursor.fetchall() 
         
-        return render_template("admin_panel.html", message = message)
+        cursor.execute("""SELECT Pet.*
+            FROM Pet
+            LEFT JOIN Pet_Adoption ON Pet.Pet_ID = Pet_Adoption.Pet_ID
+            WHERE Pet_Adoption.Pet_ID IS NULL;
+        """)
+        
+        pet_data2 = cursor.fetchall()
+
+
+        cursor.execute("""SELECT V.User_ID, U.First_Middle_Name, U.Last_Name, COUNT(A.Appointment_ID) AS NumAppointments
+            FROM Veterinarian V
+            LEFT JOIN vet_appoint VA ON V.User_ID = VA.User_ID
+            LEFT JOIN Appointment A ON VA.Appointment_ID = A.Appointment_ID
+            LEFT JOIN user U ON V.User_ID = U.User_ID
+            GROUP BY V.User_ID, U.First_Middle_Name, U.Last_Name
+            ORDER BY NumAppointments DESC
+            LIMIT 3;
+        """)    
+        
+        vet_data = cursor.fetchall()
+
+        cursor.execute("""SELECT U.User_ID, U.First_Middle_Name, U.Last_Name, COUNT(PA.Pet_ID) AS NumAdoptedPets
+            FROM user U
+            LEFT JOIN AdoptionApplication AA ON U.User_ID = AA.User_ID
+            LEFT JOIN Pet_Adoption PA ON AA.Application_ID = PA.Application_ID
+            GROUP BY U.User_ID
+            ORDER BY NumAdoptedPets DESC
+            LIMIT 3;
+        """)
+        
+        adopt_data = cursor.fetchall()
+
+        cursor.execute("""SELECT P.Breed, COUNT(PA.Pet_ID) AS NumAdoptions
+            FROM Pet P
+            LEFT JOIN Pet_Adoption PA ON P.Pet_ID = PA.Pet_ID
+            GROUP BY P.Breed
+            ORDER BY NumAdoptions DESC
+            LIMIT 3;
+        """)
+                
+        breed_data = cursor.fetchall()
+        
+        return render_template("admin_panel.html", pet_data = pet_data, 
+                               pet_data2 = pet_data2, vet_data = vet_data, 
+                               adopt_data = adopt_data, breed_data = breed_data)
 
 
 if __name__ == "__main__":
