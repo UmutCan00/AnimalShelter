@@ -258,7 +258,6 @@ def schedule_online_meeting(pet_id):
                 pet=pet_details,
                 veterinarians=veterinarians,
                 form_success=form_success,
-                message=user_info,
             )
 
         return render_template(
@@ -282,12 +281,100 @@ def schedule_online_meeting(pet_id):
         "online_meeting.html",
         pet=pet_details,
         veterinarians=veterinarians,
-        message=user_info,
     )
 
 
 @app.route("/schedule_vet_appointment/<pet_id>", methods=["GET", "POST"])
 def schedule_vet_appointment(pet_id):
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+    cursor.execute("SELECT * FROM Pet WHERE Pet_ID = %s", (pet_id,))
+    pet_details = cursor.fetchone()
+    veterinarians = {}
+    # Fetch all distinct clinic names
+    cursor.execute("SELECT DISTINCT Clinic_Name FROM Veterinarian")
+    clinics = cursor.fetchall()
+
+    if request.method == "POST":
+        selected_clinic = request.form.get("clinic")
+
+        # Fetch veterinarians based on the selected clinic
+        cursor.execute(
+            "SELECT u.User_ID, CONCAT(u.First_Middle_Name, ' ', u.Last_Name) AS Full_Name FROM user u "
+            "JOIN Veterinarian v ON u.User_ID = v.User_ID WHERE v.Clinic_Name = %s",
+            (selected_clinic,),
+        )
+        veterinarians = cursor.fetchall()
+        email = request.form["email"]
+        fullname = request.form["fullname"]
+        problems = request.form["problems"]
+        appointment_time = request.form["appointment-time"]
+        selected_vet = request.form["veterinarian"]
+        random_number = "1234"
+        # Check if email and full name match the user in the session
+
+        user_id = session["userid"]
+        cursor.execute(
+            "SELECT Email, CONCAT(First_Middle_Name, ' ', Last_Name) AS Full_Name FROM user WHERE User_ID = %s",
+            (user_id,),
+        )
+        user_info = cursor.fetchone()
+
+        if (
+            str(user_info["Email"]).lower().strip() == str(email).lower().strip()
+            and str(user_info["Full_Name"]).lower().strip()
+            == str(fullname).lower().strip()
+        ):
+            cursor.execute(
+                "INSERT INTO Appointment (Appointment_ID, Date, Time, Purpose) VALUES (%s, %s, %s, %s)",
+                (
+                    random_number,
+                    appointment_time.split("T")[0],
+                    appointment_time.split("T")[1],
+                    problems,
+                ),
+            )
+            mysql.connection.commit()
+            cursor.execute(
+                "INSERT INTO vet_appoint (Appointment_ID, User_ID) VALUES (%s, %s)",
+                (random_number, user_id),
+            )
+
+            # Fetch the newly inserted Appointment_ID
+            cursor.execute(
+                "SELECT Appointment_ID FROM Appointment ORDER BY Appointment_ID DESC LIMIT 1"
+            )
+            appointment_id = cursor.fetchone()["Appointment_ID"]
+
+            # Insert data into vet_appoint table
+            cursor.execute(
+                "INSERT INTO vet_appoint (Appointment_ID, User_ID) VALUES (%s, %s)",
+                (appointment_id, user_id),
+            )
+            mysql.connection.commit()
+            return render_template(
+                "vet_meeting.html",
+                pet=pet_details,
+                clinics=clinics,
+                veterinarians=veterinarians,
+            )
+        # Handle the rest of the form submission for requesting a meeting
+        # ...
+
+        return render_template(
+            "vet_meeting.html",
+            pet=pet_details,
+            clinics=clinics,
+            veterinarians=veterinarians,
+        )
+
+    return render_template(
+        "vet_meeting.html",
+        pet=pet_details,
+        clinics=clinics,
+        veterinarians=veterinarians,
+    )
+
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
 
     cursor.execute("SELECT * FROM Pet WHERE Pet_ID = %s", (pet_id,))
