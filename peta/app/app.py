@@ -23,7 +23,11 @@ mysql = MySQL(app)
 # Home Page Function
 @app.route("/", methods=["GET"])
 def home():
-    return render_template("auth/home.html")
+    userid = session["userid"]
+    message = ""
+    if userid:
+        message = "Logged in with userid= " + userid
+    return render_template("auth/home.html", message=message)
 
 
 # Login Page Function
@@ -190,14 +194,14 @@ pet_details = {
 @app.route("/schedule_online_meeting/<pet_id>", methods=["GET", "POST"])
 def schedule_online_meeting(pet_id):
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+    cursor.execute("SELECT * FROM Pet WHERE Pet_ID = %s", (pet_id,))
+    pet_details = cursor.fetchone()
+
     cursor.execute(
         "SELECT u.User_ID, CONCAT(u.First_Middle_Name, ' ', u.Last_Name) AS Full_Name FROM user u, Veterinarian v WHERE u.User_ID = v.User_ID;"
     )
     veterinarians = cursor.fetchall()
-    veterinarians_array = []
-    for vet in veterinarians:
-        vet_array = list(vet)
-        veterinarians_array.append(vet_array)
 
     if request.method == "POST":
         email = request.form["email"]
@@ -205,26 +209,175 @@ def schedule_online_meeting(pet_id):
         problems = request.form["problems"]
         appointment_time = request.form["appointment-time"]
         selected_vet = request.form["veterinarian"]
+        random_number = "1234"
+        # Check if email and full name match the user in the session
 
-        print(f"Email: {email}")
-        print(f"Full Name: {fullname}")
-        print(f"Problems: {problems}")
-        print(f"Appointment Time: {appointment_time}")
-        # print(f"Selected Veterinarian: {veterinarians.get(selected_vet)}")
+        user_id = session["userid"]
+        cursor.execute(
+            "SELECT Email, CONCAT(First_Middle_Name, ' ', Last_Name) AS Full_Name FROM user WHERE User_ID = %s",
+            (user_id,),
+        )
+        user_info = cursor.fetchone()
 
-        form_success = True
+        if (
+            str(user_info["Email"]).lower().strip() == str(email).lower().strip()
+            and str(user_info["Full_Name"]).lower().strip()
+            == str(fullname).lower().strip()
+        ):
+            cursor.execute(
+                "INSERT INTO Appointment (Appointment_ID, Date, Time, Purpose) VALUES (%s, %s, %s, %s)",
+                (
+                    random_number,
+                    appointment_time.split("T")[0],
+                    appointment_time.split("T")[1],
+                    problems,
+                ),
+            )
+            mysql.connection.commit()
+            cursor.execute(
+                "INSERT INTO vet_appoint (Appointment_ID, User_ID) VALUES (%s, %s)",
+                (random_number, user_id),
+            )
+
+            # Fetch the newly inserted Appointment_ID
+            cursor.execute(
+                "SELECT Appointment_ID FROM Appointment ORDER BY Appointment_ID DESC LIMIT 1"
+            )
+            appointment_id = cursor.fetchone()["Appointment_ID"]
+
+            # Insert data into vet_appoint table
+            cursor.execute(
+                "INSERT INTO vet_appoint (Appointment_ID, User_ID) VALUES (%s, %s)",
+                (appointment_id, user_id),
+            )
+            mysql.connection.commit()
+
+            form_success = True
+            return render_template(
+                "online_meeting.html",
+                pet=pet_details,
+                veterinarians=veterinarians,
+                form_success=form_success,
+                message=user_info,
+            )
+
         return render_template(
             "online_meeting.html",
             pet=pet_details,
             veterinarians=veterinarians,
-            form_success=form_success,
+            message="invalid fields"
+            + email
+            + fullname
+            + user_info["Email"]
+            + user_info["Full_Name"],
         )
 
+    user_id = session["userid"]
+    cursor.execute(
+        "SELECT Email, CONCAT(First_Middle_Name, ' ', Last_Name) AS Full_Name FROM user WHERE User_ID = %s",
+        (user_id,),
+    )
+    user_info = cursor.fetchone()
     return render_template(
         "online_meeting.html",
         pet=pet_details,
         veterinarians=veterinarians,
-        message=veterinarians,
+        message=user_info,
+    )
+
+
+@app.route("/schedule_vet_appointment/<pet_id>", methods=["GET", "POST"])
+def schedule_vet_appointment(pet_id):
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+    cursor.execute("SELECT * FROM Pet WHERE Pet_ID = %s", (pet_id,))
+    pet_details = cursor.fetchone()
+
+    cursor.execute(
+        "SELECT u.User_ID, CONCAT(u.First_Middle_Name, ' ', u.Last_Name) AS Full_Name FROM user u, Veterinarian v WHERE u.User_ID = v.User_ID;"
+    )
+    veterinarians = cursor.fetchall()
+
+    if request.method == "POST":
+        email = request.form["email"]
+        fullname = request.form["fullname"]
+        problems = request.form["problems"]
+        appointment_time = request.form["appointment-time"]
+        selected_vet = request.form["veterinarian"]
+        random_number = "1234"
+        # Check if email and full name match the user in the session
+
+        user_id = session["userid"]
+        cursor.execute(
+            "SELECT Email, CONCAT(First_Middle_Name, ' ', Last_Name) AS Full_Name FROM user WHERE User_ID = %s",
+            (user_id,),
+        )
+        user_info = cursor.fetchone()
+
+        if (
+            str(user_info["Email"]).lower().strip() == str(email).lower().strip()
+            and str(user_info["Full_Name"]).lower().strip()
+            == str(fullname).lower().strip()
+        ):
+            cursor.execute(
+                "INSERT INTO Appointment (Appointment_ID, Date, Time, Purpose) VALUES (%s, %s, %s, %s)",
+                (
+                    random_number,
+                    appointment_time.split("T")[0],
+                    appointment_time.split("T")[1],
+                    problems,
+                ),
+            )
+            mysql.connection.commit()
+            cursor.execute(
+                "INSERT INTO vet_appoint (Appointment_ID, User_ID) VALUES (%s, %s)",
+                (random_number, user_id),
+            )
+
+            # Fetch the newly inserted Appointment_ID
+            cursor.execute(
+                "SELECT Appointment_ID FROM Appointment ORDER BY Appointment_ID DESC LIMIT 1"
+            )
+            appointment_id = cursor.fetchone()["Appointment_ID"]
+
+            # Insert data into vet_appoint table
+            cursor.execute(
+                "INSERT INTO vet_appoint (Appointment_ID, User_ID) VALUES (%s, %s)",
+                (appointment_id, user_id),
+            )
+            mysql.connection.commit()
+
+            form_success = True
+            return render_template(
+                "online_meeting.html",
+                pet=pet_details,
+                veterinarians=veterinarians,
+                form_success=form_success,
+                message=user_info,
+            )
+
+        return render_template(
+            "online_meeting.html",
+            pet=pet_details,
+            veterinarians=veterinarians,
+            message="invalid fields"
+            + email
+            + fullname
+            + user_info["Email"]
+            + user_info["Full_Name"],
+        )
+
+    user_id = session["userid"]
+    cursor.execute(
+        "SELECT Email, CONCAT(First_Middle_Name, ' ', Last_Name) AS Full_Name FROM user WHERE User_ID = %s",
+        (user_id,),
+    )
+    user_info = cursor.fetchone()
+    return render_template(
+        "online_meeting.html",
+        pet=pet_details,
+        veterinarians=veterinarians,
+        message=user_info,
     )
 
 
@@ -247,34 +400,62 @@ applications_data = {
 }
 
 
-@app.route("/adoption-application/<int:id>", methods=["GET", "POST"])
+@app.route("/adoption-application/<id>", methods=["GET", "POST"])
 def adoption_application(id):
-    pet = pets_data.get(id)
-    application = applications_data.get(id)
+    if request.method == "GET":
+        # Fetch pet data related to the provided ID and user from the session
 
-    if not pet or not application:
-        return "Pet or application not found", 404
+        user_id = session["userid"]
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        if not user_id:
+            return "User not logged in", 403
 
-    status = (
-        "Approved"
-        if application["Admin_Approved"] and application["Shelter_Approved"]
-        else "Pending"
-    )
+        cursor.execute(
+            "SELECT p.*, aa.* "
+            "FROM Pet p "
+            "JOIN Pet_Adoption pa ON p.Pet_ID = pa.Pet_ID "
+            "JOIN AdoptionApplication aa ON aa.Application_ID = pa.Application_ID "
+            "WHERE p.Pet_ID = %s AND aa.User_ID = %s",
+            (id, user_id),
+        )
+        pet_application = cursor.fetchone()
 
-    if request.method == "POST":
+        if not pet_application:
+            return "Pet or application not found", 404
+
+        return render_template(
+            "adoption_application.html",
+            pet=pet_application,
+            application=pet_application,
+            # status=pet_application.Adoption_Status,
+            message=pet_application,
+        )
+
+    elif request.method == "POST":
         if "schedule_meet" in request.form:
             date = request.form.get("date")
             phone_number = request.form.get("phone_number")
 
+            # Perform actions related to scheduling a meet and greet
+            # Update database or perform necessary operations
+
             return redirect(url_for("home", id=id))
 
         elif "cancel_application" in request.form:
-            del applications_data[id]
+            # Perform actions related to canceling the application
+            # Delete data or update database as necessary
+
+            cursor.execute(
+                "DELETE aa FROM AdoptionApplication aa "
+                "JOIN Pet_Adoption pa ON aa.Application_ID = pa.Application_ID "
+                "WHERE pa.Pet_ID = %s AND aa.User_ID = %s",
+                (id, session.get("userid")),
+            )
+            mysql.connection.commit()
+
             return redirect(url_for("home"))
 
-    return render_template(
-        "adoption_application.html", pet=pet, application=application, status=status
-    )
+    return "Invalid Request", 400
 
 
 @app.route("/registerPet", methods=["GET", "POST"])
@@ -744,6 +925,7 @@ def logout():
 def analysis():
     return "Analysis page"
 
+
 @app.route("/admin_panel", methods=["GET", "POST"])
 def admin_panel():
     if request.method == "GET":
@@ -758,19 +940,21 @@ def admin_panel():
             """
         )
 
-        pet_data = cursor.fetchall() 
-        
-        cursor.execute("""
+        pet_data = cursor.fetchall()
+
+        cursor.execute(
+            """
                        SELECT Pet.*
             FROM Pet
             LEFT JOIN Pet_Adoption ON Pet.Pet_ID = Pet_Adoption.Pet_ID
             WHERE Pet_Adoption.Pet_ID IS NULL
-                       """)
-        
+                       """
+        )
+
         pet_data2 = cursor.fetchall()
 
-
-        cursor.execute("""
+        cursor.execute(
+            """
                        SELECT V.User_ID, U.First_Middle_Name, U.Last_Name, COUNT(A.Appointment_ID) AS NumAppointments
             FROM Veterinarian V
             LEFT JOIN vet_appoint VA ON V.User_ID = VA.User_ID
@@ -779,11 +963,13 @@ def admin_panel():
             GROUP BY V.User_ID, U.First_Middle_Name, U.Last_Name
             ORDER BY NumAppointments DESC
             LIMIT 3
-                       """)    
-        
+                       """
+        )
+
         vet_data = cursor.fetchall()
 
-        cursor.execute("""
+        cursor.execute(
+            """
                        SELECT U.User_ID, U.First_Middle_Name, U.Last_Name, COUNT(PA.Pet_ID) AS NumAdoptedPets
             FROM user U
             LEFT JOIN AdoptionApplication AA ON U.User_ID = AA.User_ID
@@ -791,44 +977,91 @@ def admin_panel():
             GROUP BY U.User_ID
             ORDER BY NumAdoptedPets DESC
             LIMIT 3
-                       """)
-        
+                       """
+        )
+
         adopt_data = cursor.fetchall()
 
-        cursor.execute("""
+        cursor.execute(
+            """
                        SELECT P.Breed, COUNT(PA.Pet_ID) AS NumAdoptions
             FROM Pet P
             LEFT JOIN Pet_Adoption PA ON P.Pet_ID = PA.Pet_ID
             GROUP BY P.Breed
             ORDER BY NumAdoptions DESC
             LIMIT 3
-                       """)
-                
+                       """
+        )
+
         breed_data = cursor.fetchall()
 
-        #mock data starts here
+        # mock data starts here
+        pet_details = {
+            "Pet_ID": "1",
+            "Name": "Buddy",
+            "Breed": "Labrador Retriever",
+            "Date_of_Birth": "2020-01-15",
+            "Age": 3,
+            "Gender": "Male",
+            "Description": "Friendly and active",
+            "Adoption_Status": "Available",
+            "Medical_History": "Vaccinated and dewormed",
+        }
         pet_list = []
-
         for _ in range(3):
-            pet = pet_details.copy()  # Create a copy to avoid modifying the original dictionary
-            pet["Pet_ID"] = str(int(pet["Pet_ID"]) + len(pet_list) + 1)  # Increment Pet_ID for each new pet
+            pet = (
+                pet_details.copy()
+            )  # Create a copy to avoid modifying the original dictionary
+            pet["Pet_ID"] = str(
+                int(pet["Pet_ID"]) + len(pet_list) + 1
+            )  # Increment Pet_ID for each new pet
             pet_list.append(pet)
-        
+
         pet_data = pet_list
         pet_data2 = pet_list
 
         vet_sample = [
-            {"User_ID": "V001", "First_Middle_Name": "umut", "Last_Name": "can1", "NumAppointments": 10},
-            {"User_ID": "V002", "First_Middle_Name": "umut", "Last_Name": "can2", "NumAppointments": 8},
-            {"User_ID": "V003", "First_Middle_Name": "john", "Last_Name": "doe", "NumAppointments": 5},
-        ]      
+            {
+                "User_ID": "V001",
+                "First_Middle_Name": "umut",
+                "Last_Name": "can1",
+                "NumAppointments": 10,
+            },
+            {
+                "User_ID": "V002",
+                "First_Middle_Name": "umut",
+                "Last_Name": "can2",
+                "NumAppointments": 8,
+            },
+            {
+                "User_ID": "V003",
+                "First_Middle_Name": "john",
+                "Last_Name": "doe",
+                "NumAppointments": 5,
+            },
+        ]
 
         vet_data = vet_sample
 
         adopt_sample = [
-            {"User_ID": "U001", "First_Middle_Name": "a", "Last_Name": "b", "NumAdoptedPets": 2},
-            {"User_ID": "U002", "First_Middle_Name": "a", "Last_Name": "c", "NumAdoptedPets": 1},
-            {"User_ID": "V001", "First_Middle_Name": "umut", "Last_Name": "can1", "NumAdoptedPets": 0},
+            {
+                "User_ID": "U001",
+                "First_Middle_Name": "a",
+                "Last_Name": "b",
+                "NumAdoptedPets": 2,
+            },
+            {
+                "User_ID": "U002",
+                "First_Middle_Name": "a",
+                "Last_Name": "c",
+                "NumAdoptedPets": 1,
+            },
+            {
+                "User_ID": "V001",
+                "First_Middle_Name": "umut",
+                "Last_Name": "can1",
+                "NumAdoptedPets": 0,
+            },
         ]
 
         adopt_data = adopt_sample
@@ -840,14 +1073,19 @@ def admin_panel():
         ]
 
         breed_data = breed_sample
-        #mock data ends here
+        # mock data ends here
+
+        return render_template(
+            "admin_panel.html",
+            pet_data=pet_data,
+            pet_data2=pet_data2,
+            vet_data=vet_data,
+            adopt_data=adopt_data,
+            breed_data=breed_data,
+        )
 
 
-        return render_template("admin_panel.html", pet_data = pet_data, 
-                               pet_data2 = pet_data2, vet_data = vet_data, 
-                               adopt_data = adopt_data, breed_data = breed_data)
-
-@app.route('/pet_search_page', methods=['GET', 'POST'])
+@app.route("/pet_search_page", methods=["GET", "POST"])
 def pet_search():
     sql_query = """
             SELECT *
@@ -856,18 +1094,18 @@ def pet_search():
             NATURAL JOIN lists
             WHERE P.Adoption_Status = 'Unapproved'
         """
-            
+
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
 
-    if request.method == 'POST':
+    if request.method == "POST":
         # Get the search input and filter values from the form
-        search_query = request.form.get('search-input')
-        pet_type = request.form.get('pet_type')
-        min_age = request.form.get('min_age')
-        max_age = request.form.get('max_age')
-        min_fee = request.form.get('min_fee')
-        max_fee = request.form.get('max_fee')
-        gender = request.form.get('gender')
+        search_query = request.form.get("search-input")
+        pet_type = request.form.get("pet_type")
+        min_age = request.form.get("min_age")
+        max_age = request.form.get("max_age")
+        min_fee = request.form.get("min_fee")
+        max_fee = request.form.get("max_fee")
+        gender = request.form.get("gender")
 
         # Perform the search and filter in the database
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -904,13 +1142,14 @@ def pet_search():
 
         cursor.execute(sql_query)
         pets = cursor.fetchall()
-        
-        return render_template('pet_search_page.html', pets=pets)
+
+        return render_template("pet_search_page.html", pets=pets)
 
     cursor.execute(sql_query)
     pets = cursor.fetchall()
-    return render_template('pet_search_page.html', pets=pets)
-    
+    return render_template("pet_search_page.html", pets=pets)
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(debug=True, host="0.0.0.0", port=port)

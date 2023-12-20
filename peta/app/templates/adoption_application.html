@@ -19,6 +19,16 @@
 <div>
     <h2>Schedule a Meet and Greet</h2>
     <form action="" method="post">
+        {% if message is defined and message %}
+        <h2>
+            <div class="alert alert-warning">{{ message }}</div>
+        </h2>
+        {% endif %}
+        {% if form_success %}
+        <div>
+            <p style="color: green;">Form sent successfully!</p>
+        </div>
+        {% endif %}
         <div>
             <label for="date">Date:</label>
             <input type="datetime-local" id="date" name="date" required>
@@ -35,7 +45,8 @@
 
 <div>
     <h2>Application Status</h2>
-    <p>Status: {% if application.Admin_Approved and application.Shelter_Approved %}Approved{% else %}Pending{% endif %}</p>
+    <p>Status: {% if application.Admin_Approved and application.Shelter_Approved %}Approved{% else %}Pending{% endif %}
+    </p>
 </div>
 
 <hr>
