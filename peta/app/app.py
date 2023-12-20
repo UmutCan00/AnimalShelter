@@ -744,6 +744,25 @@ def logout():
 def analysis():
     return "Analysis page"
 
+@app.route("/admin_panel", methods=["GET", "POST"])
+def admin_panel():
+    if request.method == "GET":
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute(
+            """
+                SELECT P.*
+                FROM Pet P 
+                NATURAL JOIN Pet_Adoption PA 
+                NATURAL JOIN AdoptionApplication AA 
+                WHERE AA.Application_Status <> 'Approved'
+            """
+        )
+
+        pets = cursor.fetchall()
+        message = pets
+        
+        return render_template("admin_panel.html", message = message)
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
