@@ -239,3 +239,52 @@ CREATE TABLE schedules (
     FOREIGN KEY (Date, Time) REFERENCES Meet_And_Greet(Date, Time) ON DELETE CASCADE
 );
 
+CREATE TABLE pet_appoint (
+    Appointment_ID CHAR(11),
+    Pet_ID CHAR(11),
+    FOREIGN KEY (Appointment_ID) REFERENCES Appointment(Appointment_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Pet_ID) REFERENCES Pet(Pet_ID) ON DELETE CASCADE
+);
+
+CREATE TABLE pet_donation_appl (
+    Donation_Application_ID CHAR(11),
+    Pet_ID CHAR(11),
+    FOREIGN KEY (Donation_Application_ID) REFERENCES DonationApplication(Donation_Application_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Pet_ID) REFERENCES Pet(Pet_ID) ON DELETE CASCADE
+);
+
+CREATE TABLE informs (
+    Info_ID CHAR(11),
+    Pet_ID CHAR(11),
+    FOREIGN KEY (Info_ID) REFERENCES PetCareInfo(Info_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Pet_ID) REFERENCES Pet(Pet_ID) ON DELETE CASCADE
+);
+
+
+CREATE TABLE advises (
+    Advice_ID CHAR(11),
+    User_ID CHAR(11),
+    FOREIGN KEY (Advice_ID) REFERENCES ExpertAdvice(Advice_ID) ON DELETE CASCADE,
+    FOREIGN KEY (User_ID) REFERENCES Veterinarian(User_ID) ON DELETE CASCADE
+);
+
+CREATE TABLE advised_pet (
+    Advice_ID CHAR(11),
+    Pet_ID CHAR(11),
+    FOREIGN KEY (Advice_ID) REFERENCES ExpertAdvice(Advice_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Pet_ID) REFERENCES Pet(Pet_ID) ON DELETE CASCADE
+);
+
+CREATE TABLE write_health_report (
+    Vet_ID CHAR(11),
+    Report_ID CHAR(11),
+    FOREIGN KEY (Vet_ID) REFERENCES Veterinarian(User_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Report_ID) REFERENCES PetHealthReport(Report_ID) ON DELETE CASCADE
+);
+
+CREATE TABLE pet_health_report (
+    Pet_ID CHAR(11),
+    Report_ID CHAR(11),
+    FOREIGN KEY (Pet_ID) REFERENCES Pet(Pet_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Report_ID) REFERENCES PetHealthReport(Report_ID) ON DELETE CASCADE
+);
