@@ -31,11 +31,13 @@ CREATE TABLE Pet (
 
 INSERT INTO Pet
 VALUES
-    ('P001', 'Cat','pet name 1', 'Tekir', '1800-01-01', 12, 'email', 'des1', 'Approved', 'grip', 1000),
-    ('P002', 'Cat','pet name 2', 'Sarman', '1800-01-02', 21, 'male', 'des2', 'Approved', 'flu', 2500),
-    ('P003', 'Cat','pet name 3', 'Siyam', '1800-01-03', 123, 'female', 'des3', 'Unapproved', 'fever', 2000),
-    ('P004', 'Cat','pet name 4', 'British', '1800-01-04', 1234, 'male', 'des4', 'Unapproved', 'none', 3000),
-    ('P005', 'Cat','pet name 5', 'Scottish', '1800-01-05', 12345, 'female', 'des5', 'Unapproved', 'chickenpox', 1500);
+    ('P001', 'Cat','pet name 1', 'Tekir', '1800-01-01', 12, 'email', 'des1', 'Unapproved', 'grip', 1000),
+    ('P002', 'Cat','pet name 2', 'Sarman', '1800-01-02', 10, 'male', 'des2', 'Unapproved', 'flu', 2500),
+    ('P003', 'Cat','pet name 3', 'Siyam', '1800-01-03', 3, 'female', 'des3', 'Unapproved', 'fever', 2000),
+    ('P004', 'Cat','pet name 4', 'British', '1800-01-04', 1, 'male', 'des4', 'Approved', 'none', 3000),
+    ('P005', 'Cat','pet name 5', 'Scottish', '1800-01-05', 5, 'female', 'des5', 'Approved', 'chickenpox', 1500),
+    ('P006', 'Dog','pet name 6', 'Golden', '1800-01-03', 15, 'female', 'des36', 'Unapproved', 'fever', 2000),
+    ('P007', 'Dog','pet name 7', 'Poo', '1800-01-03', 12, 'male', 'des7', 'Unapproved', 'fever', 2000);
 
 CREATE TABLE AnimalShelter (
     User_ID CHAR(11) PRIMARY KEY,
@@ -56,9 +58,9 @@ CREATE TABLE lists (
 
 INSERT INTO lists
 VALUES
-    ('AS001', 'P003'),
-    ('AS001', 'P004'),
-    ('AS002', 'P005');
+    ('AS001', 'P001'),
+    ('AS001', 'P002'),
+    ('AS002', 'P003');
 
 CREATE TABLE AdoptionApplication (
     Application_ID CHAR(11) PRIMARY KEY,
@@ -70,8 +72,8 @@ CREATE TABLE AdoptionApplication (
 
 INSERT INTO AdoptionApplication
 VALUES
-    ('AA001', 'U001', '1800-01-01', 'Approved'),
-    ('AA002', 'U001', '1800-01-01', 'Approved'),
+    ('AA001', 'U001', '1800-01-01', 'Unapproved'),
+    ('AA002', 'U001', '1800-01-01', 'Unapproved'),
     ('AA003', 'U001', '1800-01-01', 'Unapproved');
 
 CREATE TABLE Pet_Adoption(
