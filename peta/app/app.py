@@ -73,24 +73,24 @@ def suite():
 def register():
     message = ""
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    if (
-        request.method == "POST"
-        and "email" in request.form
-        and "password" in request.form
-        and "confirm_password" in request.form
-        and "name" in request.form
-        and "surname" in request.form
-        and "phone" in request.form
-        and "role" in request.form
-    ):
-        email = str(request.form["email"])
-        password = str(request.form["password"])
-        confirm_password = str(request.form["confirm_password"])
-        name = str(request.form["name"])
-        surname = str(request.form["surname"])
-        phone = str(request.form["phone"])
-        role = str(request.form["role"])
 
+    if request.method == "POST":
+        email = request.form["email"]
+        password = request.form["password"]
+        confirm_password = request.form["confirm_password"]
+        name = request.form["name"]
+        surname = request.form["surname"]
+        phone = request.form["phone"]
+        role = request.form["role"]
+
+        # Additional fields for Veterinarian
+        if role == "vet":
+            specialization = request.form["specialization"]
+            clinic_name = request.form["clinic_name"]
+            clinic_id = request.form["clinic_id"]
+            status = request.form["status"]
+
+        # Validation checks
         if any(
             value == ""
             for value in (email, password, confirm_password, name, surname, phone, role)
@@ -113,12 +113,36 @@ def register():
             return render_template("auth/register.html", message=message)
 
         try:
+            # Generate a random 6-digit User_ID
+            new_user_id = "U" + str("123342")
+            hashed_email = sum(ord(char) for char in email) % (10**9)
+            new_user_id = "U" + str(hashed_email)
+            # Insert user into 'user' table with generated User_ID
             cursor.execute(
                 "INSERT INTO user (User_ID, Password, First_Middle_Name, Last_Name, Email, Phone_Number) VALUES (%s, %s, %s, %s, %s, %s)",
-                (email, password, name, surname, email, phone),
+                (new_user_id, password, name, surname, email, phone),
             )
             mysql.connection.commit()
-            message = "User successfully registered!"
+
+            # Insert user into respective table based on role
+            if role == "vet":
+                cursor.execute(
+                    "INSERT INTO Veterinarian (User_ID, Specialization, Clinic_Name, Clinic_ID, Status) VALUES (%s, %s, %s, %s, %s)",
+                    (new_user_id, specialization, clinic_name, clinic_id, status),
+                )
+            elif role == "adopter":
+                cursor.execute(
+                    "INSERT INTO Adopter (User_ID, Number_of_Adoptions) VALUES (%s, %s)",
+                    (new_user_id, 0),  # You may adjust the initial value here
+                )
+            elif role == "shelter":
+                cursor.execute(
+                    "INSERT INTO AnimalShelter (User_ID, Number_of_Animals) VALUES (%s, %s)",
+                    (new_user_id, 0),  # You may adjust the initial value here
+                )
+
+            mysql.connection.commit()
+            message = "User successfully registered!" + new_user_id
         except Exception as e:
             message = f"Error: {str(e)}"
 

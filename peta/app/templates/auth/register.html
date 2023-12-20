@@ -58,10 +58,54 @@
                     <label for="role">Role:</label>
                     <select class="form-control" id="role" name="role">
                         <option value="adopter">Adopter</option>
-                        <option value="donor">Donor</option>
+                        <option value="vet">Vet</option>
                         <option value="shelter">Shelter</option>
                     </select>
                 </div>
+
+                <!-- Additional fields for Veterinarian -->
+                <div class="form-group" id="vetFields" style="display: none;">
+                    <label for="specialization">Specialization:</label>
+                    <input type="text" class="form-control" id="specialization" name="specialization"
+                        placeholder="Enter specialization">
+                </div>
+                <div class="form-group" id="clinicNameField" style="display: none;">
+                    <label for="clinic_name">Clinic Name:</label>
+                    <input type="text" class="form-control" id="clinic_name" name="clinic_name"
+                        placeholder="Enter clinic name">
+                </div>
+                <div class="form-group" id="clinicIDField" style="display: none;">
+                    <label for="clinic_id">Clinic ID:</label>
+                    <input type="text" class="form-control" id="clinic_id" name="clinic_id"
+                        placeholder="Enter clinic ID">
+                </div>
+                <div class="form-group" id="statusField" style="display: none;">
+                    <label for="status">Status:</label>
+                    <input type="text" class="form-control" id="status" name="status" placeholder="Enter status">
+                </div>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        const roleSelect = document.getElementById('role');
+                        const vetFields = document.getElementById('vetFields');
+                        const clinicNameField = document.getElementById('clinicNameField');
+                        const clinicIDField = document.getElementById('clinicIDField');
+                        const statusField = document.getElementById('statusField');
+
+                        roleSelect.addEventListener('change', function () {
+                            if (roleSelect.value === 'vet') {
+                                vetFields.style.display = 'block';
+                                clinicNameField.style.display = 'block';
+                                clinicIDField.style.display = 'block';
+                                statusField.style.display = 'block';
+                            } else {
+                                vetFields.style.display = 'none';
+                                clinicNameField.style.display = 'none';
+                                clinicIDField.style.display = 'none';
+                                statusField.style.display = 'none';
+                            }
+                        });
+                    });
+                </script>
                 <button type="submit" class="btn btn-primary homebtn">Signup</button>
             </form>
         </div>
