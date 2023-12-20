@@ -217,3 +217,25 @@ CREATE TABLE oversees_adoption (
     FOREIGN KEY (Application_ID) REFERENCES AdoptionApplication(Application_ID) ON DELETE CASCADE
 );
 
+CREATE TABLE Adopter_Controlled (
+    User_ID CHAR(11),
+    Form_ID CHAR(11),
+    FOREIGN KEY (User_ID) REFERENCES Adopter(User_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Form_ID) REFERENCES ControlForm(Form_ID) ON DELETE CASCADE
+);
+
+CREATE TABLE applies_to_adopt (
+    Application_ID CHAR(11),
+    User_ID CHAR(11),
+    FOREIGN KEY (Application_ID) REFERENCES AdoptionApplication(Application_ID) ON DELETE CASCADE,
+    FOREIGN KEY (User_ID) REFERENCES Adopter(User_ID) ON DELETE CASCADE
+);
+
+CREATE TABLE schedules (
+    Adopter_ID CHAR(11),
+    Date DATE,
+    Time TIME,
+    FOREIGN KEY (Adopter_ID) REFERENCES Adopter(User_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Date, Time) REFERENCES Meet_And_Greet(Date, Time) ON DELETE CASCADE
+);
+
