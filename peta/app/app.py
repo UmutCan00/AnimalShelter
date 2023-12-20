@@ -53,9 +53,45 @@ def login():
         )
         user = cursor.fetchone()
         if user:
-            print("entered")
-            session["loggedin"] = True
-            session["userid"] = user["User_ID"]
+            userId = user["User_ID"]
+            # now lets find the user type
+            cursor.execute(
+                "SELECT * FROM Veterinarian WHERE User_ID = % s",
+                (
+                    userId,
+                ),
+            )
+            veterinarian = cursor.fetchone()
+            #message = veterinarian
+            if veterinarian:
+                session["userType"] = "Veterinarian"
+                session["userid"] = userId
+            else:
+                cursor.execute(
+                    "SELECT * FROM AnimalShelter WHERE User_ID = % s",
+                    (
+                        userId,
+                    ),
+                )
+                animalShelter = cursor.fetchone()
+                if animalShelter:
+                    session["userType"] = "AnimalShelter"
+                    session["userid"] = userId
+                    return redirect(url_for("shelterAnimalList"))
+                else:
+                    cursor.execute(
+                        "SELECT * FROM AnimalShelter WHERE User_ID = % s",
+                        (
+                            userId,
+                        ),
+                    )
+                    adminUser = cursor.fetchone()
+                    if adminUser:
+                        session["userType"] = "Admin"
+                        session["userid"] = userId
+                    else:
+                        session["userType"] = "Adopter"
+                        session["userid"] = userId
             message = "Logged in successfully!"
             return redirect(url_for("suite"))
         else:
