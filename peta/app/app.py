@@ -23,7 +23,11 @@ mysql = MySQL(app)
 # Home Page Function
 @app.route("/", methods=["GET"])
 def home():
-    return render_template("auth/home.html")
+    userid = session["userid"]
+    message = ""
+    if userid:
+        message = "Logged in with userid= " + userid
+    return render_template("auth/home.html", message=message)
 
 
 # Login Page Function
@@ -247,34 +251,62 @@ applications_data = {
 }
 
 
-@app.route("/adoption-application/<int:id>", methods=["GET", "POST"])
+@app.route("/adoption-application/<id>", methods=["GET", "POST"])
 def adoption_application(id):
-    pet = pets_data.get(id)
-    application = applications_data.get(id)
+    if request.method == "GET":
+        # Fetch pet data related to the provided ID and user from the session
 
-    if not pet or not application:
-        return "Pet or application not found", 404
+        user_id = session["userid"]
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        if not user_id:
+            return "User not logged in", 403
 
-    status = (
-        "Approved"
-        if application["Admin_Approved"] and application["Shelter_Approved"]
-        else "Pending"
-    )
+        cursor.execute(
+            "SELECT p.*, aa.* "
+            "FROM Pet p "
+            "JOIN Pet_Adoption pa ON p.Pet_ID = pa.Pet_ID "
+            "JOIN AdoptionApplication aa ON aa.Application_ID = pa.Application_ID "
+            "WHERE p.Pet_ID = %s AND aa.User_ID = %s",
+            (id, user_id),
+        )
+        pet_application = cursor.fetchone()
 
-    if request.method == "POST":
+        if not pet_application:
+            return "Pet or application not found", 404
+
+        return render_template(
+            "adoption_application.html",
+            pet=pet_application,
+            application=pet_application,
+            # status=pet_application.Adoption_Status,
+            message=pet_application,
+        )
+
+    elif request.method == "POST":
         if "schedule_meet" in request.form:
             date = request.form.get("date")
             phone_number = request.form.get("phone_number")
 
+            # Perform actions related to scheduling a meet and greet
+            # Update database or perform necessary operations
+
             return redirect(url_for("home", id=id))
 
         elif "cancel_application" in request.form:
-            del applications_data[id]
+            # Perform actions related to canceling the application
+            # Delete data or update database as necessary
+
+            cursor.execute(
+                "DELETE aa FROM AdoptionApplication aa "
+                "JOIN Pet_Adoption pa ON aa.Application_ID = pa.Application_ID "
+                "WHERE pa.Pet_ID = %s AND aa.User_ID = %s",
+                (id, session.get("userid")),
+            )
+            mysql.connection.commit()
+
             return redirect(url_for("home"))
 
-    return render_template(
-        "adoption_application.html", pet=pet, application=application, status=status
-    )
+    return "Invalid Request", 400
 
 
 @app.route("/registerPet", methods=["GET", "POST"])
