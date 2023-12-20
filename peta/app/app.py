@@ -165,7 +165,7 @@ pets_data1 = [
 ]
 
 
-@app.route("/user-pets")
+@app.route("/vet-appointment")
 def user_pets():
     message = ""
     user_id = session["userid"]
