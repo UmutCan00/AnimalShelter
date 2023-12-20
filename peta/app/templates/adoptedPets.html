@@ -29,11 +29,18 @@
                 <li>YOUR PETS ADOPTED FROM THIS PLATFORM &#x21E9;</li>
                 {% for item in message %}
                 <li>
-                    <div>Type:{{item['Name']}}, Breed:{{item['Breed']}}, Age:{{item['Age']}}</div>
-                    <button class="button">See Pet Care Details</button>
+                    <div>Type: {{ item['Name'] }}, Breed: {{ item['Breed'] }}, Age: {{ item['Age'] }}, Type: {{item['Type']}}</div>
+                    <button class="button" onclick="redirectToPetCareDetails('{{ item['Type'] }}')">See Pet Care Details</button>
                 </li>
                 {% endfor %}
             </ul>
+            <script>
+                function redirectToPetCareDetails(petType) {
+                    console.log("petType:", petType)
+                    var redirectToURL = "http://localhost:5000/petcare/" +petType
+                    window.location.href = redirectToURL;
+                }
+            </script>
         </div>
     </div>
 </body>
