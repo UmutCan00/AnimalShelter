@@ -763,6 +763,69 @@ def admin_panel():
         
         return render_template("admin_panel.html", message = message)
 
+@app.route('/pet_search_page', methods=['GET', 'POST'])
+def pet_search():
+    sql_query = """
+            SELECT P.*
+            FROM Pet P
+            NATURAL JOIN AnimalShelter
+            NATURAL JOIN lists
+            WHERE P.Adoption_Status = 'Unapproved'
+        """
+            
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+    if request.method == 'POST':
+        # Get the search input and filter values from the form
+        search_query = request.form.get('search-input')
+        pet_type = request.form.get('pet_type')
+        min_age = request.form.get('min_age')
+        max_age = request.form.get('max_age')
+        gender = request.form.get('gender')
+
+        # Perform the search and filter in the database
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+        # Build the SQL query based on the provided filters
+        sql_query = """
+            SELECT *
+            FROM Pet P
+            NATURAL JOIN AnimalShelter
+            NATURAL JOIN lists
+            WHERE P.Adoption_Status = 'Unapproved'
+        """
+
+        if search_query:
+            sql_query += f" AND (P.Breed LIKE '%{search_query}%')"
+
+        if pet_type:
+            sql_query += f" AND P.Type = '{pet_type}'"
+
+        if min_age:
+            sql_query += f" AND P.Age >= {min_age}"
+
+        if max_age:
+            sql_query += f" AND P.Age <= {max_age}"
+
+        if gender:
+            sql_query += f" AND P.Gender = '{gender}'"
+
+        cursor.execute(sql_query)
+        pets = cursor.fetchall()
+        sql_query = """
+            SELECT AS.*
+            FROM AnimalShelter AS
+            NATURAL JOIN Pet
+            NATURAL JOIN lists
+            WHERE AS. = 'Unapproved'
+        """
+        cursor.execute(sql_query)
+        shelter = cursor.fetchall()
+        return render_template('pet_search_page.html', pets=pets, shelter=shelter)
+
+    cursor.execute(sql_query)
+    pets = cursor.fetchall()
+    return render_template('pet_search_page.html', pets=pets)
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
