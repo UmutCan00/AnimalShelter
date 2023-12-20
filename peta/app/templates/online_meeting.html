@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Peta</title>
 </head>
+
 <body>
     <div>
         <h1>Pet Details</h1>
@@ -20,13 +22,18 @@
     </div>
     <hr>
     <div>
-      
+
         {% if form_success %}
         <div>
             <p style="color: green;">Form sent successfully!</p>
-        </div> 
+        </div>
         {% endif %}
-            
+        {% if message is defined and message %}
+        <h2>
+            <div class="alert alert-warning">{{ message }}</div>
+        </h2>
+        {% endif %}
+
         <h2>Request an Online Meeting</h2>
         <form action="/online_meeting" method="post">
             <div>
@@ -48,8 +55,8 @@
             <div>
                 <label for="veterinarian">Select Veterinarian:</label>
                 <select id="veterinarian" name="veterinarian" required>
-                    {% for vet_id, vet_name in veterinarians %}
-                        <option value="{{ vet_id }}">{{ vet_name }}</option>
+                    {% for veterinarian in veterinarians %}
+                    <option value="{{ veterinarian.User_ID }}">{{ veterinarian.Full_Name }}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -57,54 +64,54 @@
         </form>
     </div>
 </body>
+
 </html>
 <style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f4f4f4;
+    }
 
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 20px;
-    background-color: #f4f4f4;
-}
-
-div {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-}
-
-
-h1, h2 {
-    color: #333;
-}
+    div {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+    }
 
 
-input[type="email"],
-input[type="text"],
-textarea,
-select {
-    width: calc(100% - 20px);
-    padding: 10px;
-    margin: 10px 0;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-}
+    h1,
+    h2 {
+        color: #333;
+    }
 
-button[type="submit"] {
-    padding: 10px 20px;
-    background-color: #333;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
 
-button[type="submit"]:hover {
-    background-color: #555;
-}
+    input[type="email"],
+    input[type="text"],
+    textarea,
+    select {
+        width: calc(100% - 20px);
+        padding: 10px;
+        margin: 10px 0;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
 
+    button[type="submit"] {
+        padding: 10px 20px;
+        background-color: #333;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    button[type="submit"]:hover {
+        background-color: #555;
+    }
 </style>

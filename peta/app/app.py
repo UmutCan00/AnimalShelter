@@ -162,7 +162,15 @@ pets_data1 = [
 
 @app.route("/user-pets")
 def user_pets():
-    return render_template("mypetlist.html", pets=pets_data1)
+    message = ""
+    user_id = session["userid"]
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute(
+        "SELECT p.* FROM Pet p INNER JOIN Has_Pet hp ON p.Pet_ID = hp.Pet_ID WHERE hp.User_ID = %s",
+        (user_id,),
+    )
+    user_pets = cursor.fetchall()
+    return render_template("mypetlist.html", pets=user_pets)
 
 
 pet_details = {
@@ -181,7 +189,9 @@ pet_details = {
 @app.route("/schedule_online_meeting/<pet_id>", methods=["GET", "POST"])
 def schedule_online_meeting(pet_id):
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cursor.execute("SELECT User_ID, Clinic_Name FROM Veterinarian")
+    cursor.execute(
+        "SELECT u.User_ID, CONCAT(u.First_Middle_Name, ' ', u.Last_Name) AS Full_Name FROM user u, Veterinarian v WHERE u.User_ID = v.User_ID;"
+    )
     veterinarians = cursor.fetchall()
     veterinarians_array = []
     for vet in veterinarians:
@@ -210,7 +220,10 @@ def schedule_online_meeting(pet_id):
         )
 
     return render_template(
-        "online_meeting.html", pet=pet_details, veterinarians=veterinarians_array
+        "online_meeting.html",
+        pet=pet_details,
+        veterinarians=veterinarians,
+        message=veterinarians,
     )
 
 
