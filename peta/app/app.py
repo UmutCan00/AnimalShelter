@@ -766,7 +766,7 @@ def admin_panel():
 @app.route('/pet_search_page', methods=['GET', 'POST'])
 def pet_search():
     sql_query = """
-            SELECT P.*
+            SELECT *
             FROM Pet P
             NATURAL JOIN AnimalShelter
             NATURAL JOIN lists
@@ -812,16 +812,8 @@ def pet_search():
 
         cursor.execute(sql_query)
         pets = cursor.fetchall()
-        sql_query = """
-            SELECT AS.*
-            FROM AnimalShelter AS
-            NATURAL JOIN Pet
-            NATURAL JOIN lists
-            WHERE AS. = 'Unapproved'
-        """
-        cursor.execute(sql_query)
-        shelter = cursor.fetchall()
-        return render_template('pet_search_page.html', pets=pets, shelter=shelter)
+        
+        return render_template('pet_search_page.html', pets=pets)
 
     cursor.execute(sql_query)
     pets = cursor.fetchall()
