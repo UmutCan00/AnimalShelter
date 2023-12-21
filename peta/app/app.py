@@ -1027,7 +1027,7 @@ def shelterAnimalList():
                 SELECT P.*
                 FROM Pet P
                 NATURAL JOIN lists L
-                WHERE L.User_ID = %s
+                WHERE L.User_ID = %s AND P.Adoption_Status = 'Approved'
             """,
                 (shelterId,),
             )
