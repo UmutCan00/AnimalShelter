@@ -7,13 +7,8 @@
 <body>
     <div class="topnav">
         <a href="/">Home</a>
-        <a href="">Pet Adoption</a>
-        <a href="/petcare">Pet Care</a>
-        <a href="/vet-appointment">Vet Appointment</a>
-        <a href="/current-applications">Current Applications</a>
         <div class="lean-right">
-            <a class="active" href="login">Login</a>
-            <a href="register">Signup</a>
+            <a href="shelterAnimalList">Back To Shelter</a>
         </div>
     </div>
     <div class="content">
@@ -64,6 +59,12 @@
             </form>
         </div>
     </div>
+
+    <footer>
+        <img src="{{ url_for('static', filename='PETA.jpeg') }}" alt="PETA Icon" style="width: 50px; height: 50px; margin-bottom: 10px;">
+        <p>PETA</p>
+    </footer>
+    
 </body>
 <style>
     .lean-right {
@@ -100,8 +101,9 @@
         align-items: center;
         justify-content: center;
         height: 100vh;
-        margin: 0;
+        margin: 100px;
         text-align: center;
+        margin-bottom: 120px;
     }
 
     .card {
@@ -143,4 +145,26 @@
         color: black;
         cursor: pointer;
     }
+    footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 20px 0;
+    bottom: 0;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    }
+
+    footer p {
+        margin: 0;
+        font-size: 18px;
+    }
+
+    footer img {
+        margin-right: 10px;
+        border-radius: 50%;
+    }
+
 </style>

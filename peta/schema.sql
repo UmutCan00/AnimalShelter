@@ -15,7 +15,7 @@ VALUES
     ('V001', '123456', 'umut', 'can1', 'cenkerakan@qmail.com', '46545'),
     ('AS001', '1', 'as', '1', 'cenkerakan@as1.com', '46545'),
     ('AS002', '1', 'as', '1', 'cenkerakan@as2.com', '46545'),
-    ('ADMIN001', '1', 'as', '1', 'cenkerakan@admin.com', '46545'),
+    ('AD001', '1', 'as', '1', 'cenkerakan@admin.com', '46545'),
     ('V002', '123456', 'umut', 'can2', 'cenkerakan@wmail.com', '46545');
 
 CREATE TABLE Pet (
@@ -361,6 +361,18 @@ BEGIN
         VALUES (NEW.User_ID, 1);
     END IF;
 END;
+
+CREATE VIEW AdoptionView AS
+SELECT 
+    AA.Application_ID,
+    AA.User_ID AS Adopter_ID,
+    AA.Application_Date,
+    AA.Application_Status,
+    PA.Pet_ID
+FROM 
+    AdoptionApplication AA
+JOIN 
+    Pet_Adoption PA ON AA.Application_ID = PA.Application_ID;
 //
 
 DELIMITER ;

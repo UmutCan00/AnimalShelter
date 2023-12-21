@@ -1,16 +1,16 @@
-# CS353-1 Homework 4
-# Cenker Akan
-# 22102295
 import re
 import os
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
 from datetime import datetime
+import logging
 
 app = Flask(__name__)
 
 app.secret_key = "abcdefgh"
+
+logging.basicConfig(level=logging.DEBUG)
 
 app.config["MYSQL_HOST"] = "db"
 app.config["MYSQL_USER"] = "root"
@@ -23,10 +23,12 @@ mysql = MySQL(app)
 # Home Page Function
 @app.route("/", methods=["GET"])
 def home():
-    userid = session["userid"]
     message = ""
-    if userid:
+    if "userid" in session:
+        userid = session["userid"]
         message = "Logged in with userid= " + userid
+    else:
+        message = "Not logged in"
     return render_template("auth/home.html", message=message)
 
 
@@ -54,7 +56,7 @@ def login():
         user = cursor.fetchone()
         if user:
             userId = user["User_ID"]
-            # now lets find the user type
+            # now lets find the user type  31 nigga 31
 
             cursor.execute(
                 "SELECT * FROM Veterinarian WHERE User_ID = % s",
@@ -65,6 +67,7 @@ def login():
             if veterinarian:
                 session["userType"] = "Veterinarian"
                 session["userid"] = userId
+                return redirect(url_for("vet_page"))
             else:
                 cursor.execute(
                     "SELECT * FROM AnimalShelter WHERE User_ID = % s",
@@ -77,18 +80,19 @@ def login():
                     return redirect(url_for("shelterAnimalList"))
                 else:
                     cursor.execute(
-                        "SELECT * FROM AnimalShelter WHERE User_ID = % s",
+                        "SELECT * FROM Administrator WHERE User_ID = % s",
                         (userId,),
                     )
                     adminUser = cursor.fetchone()
                     if adminUser:
                         session["userType"] = "Admin"
                         session["userid"] = userId
+                        return redirect(url_for("admin_panel"))
                     else:
                         session["userType"] = "Adopter"
                         session["userid"] = userId
-            message = "Logged in successfully!"
-            return redirect(url_for("suite"))
+                        return redirect(url_for("pet_search"))
+                        
         else:
             message = "Please enter correct password !"
     return render_template("auth/login.html", message=message)
