@@ -1,7 +1,3 @@
-<!-- place holder to hold place, from chatgpt -->
-
-
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -13,30 +9,29 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
             background-color: #f2f2f2;
         }
 
         .topnav {
             background-color: #333;
             overflow: hidden;
-            color: #f2f2f2;
         }
 
         .topnav a {
             float: left;
+            color: #f2f2f2;
             text-align: center;
             padding: 14px 16px;
             text-decoration: none;
             font-size: 17px;
-            color: #f2f2f2;
         }
+
 
         .topnav a:hover {
             background-color: #ddd;
             color: black;
         }
+
 
         .topnav a.active {
             background-color: #04AA6D;
@@ -51,6 +46,7 @@
 
         .content {
             display: flex;
+            flex-direction: column;
             justify-content: space-between;
             padding: 20px;
         }
@@ -96,76 +92,125 @@
         .item button:hover {
             background-color: #04AA6D;
         }
+
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            bottom: 0;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            }
+
+            footer p {
+                margin: 0;
+                font-size: 18px;
+            }
+
+            footer img {
+                margin-right: 10px;
+                border-radius: 50%;
+            }
+
+            .lean-right {
+            display: flex;
+            justify-content: flex-end;
+        }
     </style>
 </head>
 
 <body>
     <div class="topnav">
-        <a href="#">Home</a>
-        <a href="#">Pet Adoption</a>
-        <a href="#">Pet Care</a>
-        <a href="#">Vet Appointment</a>
-        <span class="admin-info">Admin Username: your username <a href="#">Logout</a></span>
+        <div class="lean-right">
+            <a class="active" href="login">Log Out</a>
+        </div>
     </div>
-
+    {% if message is defined and message %}
+    <h2>
+        <div class="alert alert-warning">{{ message }}</div>
+    </h2>
+    {% endif %}
     <div class="content">
         <div class="left-column">
             <div class="list">
-				<div class="list-title">Pet Adoption Applications</div>
-				{% for pet in pet_data %}
-					<div class="item">
-						<span>{{ pet.animal_name }}</span>
-						<button>Approve</button>
-						<button>Delete</button>
-					</div>
-				{% endfor %}
-			</div>
-
-            <div class="list">
-                <div class="list-title">Vet Account Applications</div>
-				{% for vet in vet_data %}
-                <div class="item">
-					<span>{{ vet.name }}</span>
-                    <button>Approve</button>
-                    <button>Delete</button>
+                <div class="list">
+                    <div class="list-title">Pet Adoption Applications</div>
+                    {% for pet in pet_data %}
+                    <div class="item">
+                        <div>Name: {{ pet.Name }}, Breed: {{ pet.Breed }}, Age: {{ pet.Age }}</div>
+                        <div class="container">
+                            <form method="POST">
+                                <input type="hidden" name="pet_id" value="{{ pet.Pet_ID }}">
+                                <button name="details" formaction="/adoption-application/{{ pet.Application_ID }}">See
+                                    Details</button>
+                                <button name="approve" type="submit" value="Approved">Approve</button>
+                                <button name="reject" type="submit" value="Rejected">Reject</button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
                 </div>
-				{% endfor %}
+                <div class="list">
+                    <div class="list-title">Available Pets</div>
+                    {% for pet in pet_data2 %}
+                    <div class="item">
+                        <div>Name: {{ pet.Name }}, Breed: {{ pet.Breed }}, Age: {{ pet.Age }}</div>
+                        <form method="POST">
+                            <input type="hidden" name="pet_id" value="{{ pet.Pet_ID }}">
+                            <button type="submit" name="mark_unavailable">Delete Pet From System</button>
+                        </form>
+                    </div>
+                    {% endfor %}
+                </div>
+
+
+
             </div>
 
-            <div class="list">
-                <div class="list-title">Pet Donation Applications</div>
-				{% for pet_don_appl in pet_don_applications %}
-                <div class="item">
-					<span>{{ shelter.name }}</span>
-                    <button>Approve</button>
-                    <button>Delete</button>
+            <div class="right-column">
+                <div class="list">
+                    <div class="list-title">Top Vet Statistics</div>
+                    {% for vet in vet_data %}
+                    <div class="item">
+                        <div>Name: {{ vet.First_Middle_Name}}, {{vet.Last_Name}}, Count: {{vet.NumAppointments}}</div>
+                    </div>
+                    {% endfor %}
                 </div>
-				{% endfor %}
+
+                <div class="list">
+
+                    <div class="list-title">Top Adopter Statistics</div>
+                    {% for adopter in adopt_data %}
+                    <div class="item">
+                        <div>Name: {{ adopter.First_Middle_Name}}, {{adopter.Last_Name}}, Count:
+                            {{adopter.NumAdoptedPets}}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="list">
+
+
+                    <div class="list-title">Top Pet Statistics</div>
+                    {% for breed in breed_data %}
+                    <div class="item">
+                        <div>Breed: {{ breed.Breed }}, Count: {{breed.NumAdoptions}}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+
+
             </div>
         </div>
 
-        <div class="right-column">
-            <div class="list">
-                <div class="list-title">Adopter List</div>
-				{% for adopter in adopters %}
-                <div class="item">
-					<span>{{ adopter.name }}</span>
-                    <button>See Profile</button>
-                </div>
-				{% endfor %}
-            </div>
-
-            <div class="list">
-                <div class="list-title">Shelter List</div>
-				{% for shleter in shelters %}
-                <div class="item">
-					<span>{{ shelter.name }}</span>
-                    <button>See Profile</button>
-                </div>
-				{% endfor %}
-            </div>
-        </div>
-    </div>
+        <footer>
+            <img src="{{ url_for('static', filename='PETA.jpeg') }}" alt="PETA Icon" style="width: 50px; height: 50px; margin-bottom: 10px;">
+            <p>PETA</p>
+        </footer>
 </body>
 
 </html>

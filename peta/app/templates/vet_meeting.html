@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Peta</title>
+</head>
+<div class="topnav">
+    <a href="/vet-appointment">Back to Vet Appointment</a>
+</div>
+
+<body>
+    <div>
+        <h1>Pet Details</h1>
+        <p>Pet ID: {{ pet.Pet_ID }}</p>
+        <p>Name: {{ pet.Name }}</p>
+        <p>Breed: {{ pet.Breed }}</p>
+        <p>Date of Birth: {{ pet.Date_of_Birth }}</p>
+        <p>Age: {{ pet.Age }}</p>
+        <p>Gender: {{ pet.Gender }}</p>
+        <p>Description: {{ pet.Description }}</p>
+        <p>Adoption Status: {{ pet.Adoption_Status }}</p>
+        <p>Medical History: {{ pet.Medical_History }}</p>
+    </div>
+    <hr>
+    <div>
+
+        {% if form_success %}
+        <div>
+            <p style="color: green;">Form sent successfully!</p>
+        </div>
+        {% endif %}
+        {% if message is defined and message %}
+        <h2>
+            <div class="alert alert-warning">{{ message }}</div>
+        </h2>
+        {% endif %}
+
+        <h2>Request a Face-to-Face Meeting</h2>
+        <h2>Verify Information Below</h2>
+        <form action="/schedule_online_meeting/{{ pet.Pet_ID }}" method="post">
+            <div>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div>
+                <label for="fullname">Full Name:</label>
+                <input type="text" id="fullname" name="fullname" required>
+            </div>
+            <div>
+                <label for="problems">Describe Problems:</label>
+                <textarea id="problems" name="problems" required></textarea>
+            </div>
+            <div>
+                <label for="appointment-time">Appointment Time:</label>
+                <input type="datetime-local" id="appointment-time" name="appointment-time" required>
+            </div>
+            <div>
+                <h2>Request a Face-to-Face Meeting</h2>
+                <form method="post">
+                    <div>
+                        <label for="clinic">Select Clinic:</label>
+                        <select id="clinic" name="clinic">
+                            {% for clinic in clinics %}
+                            <option value="{{ clinic.Clinic_Name }}">{{ clinic.Clinic_Name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="veterinarian">Select Veterinarian:</label>
+                        <select id="veterinarian" name="veterinarian">
+                            {% for vet in veterinarians %}
+                            <option value="{{ vet.User_ID }}">{{ vet.Full_Name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+            </div>
+            <button type="submit">Request Appointment</button>
+        </form>
+    </div>
+
+    <footer>
+        <img src="{{ url_for('static', filename='PETA.jpeg') }}" alt="PETA Icon" style="width: 50px; height: 50px; margin-bottom: 10px;">
+        <p>PETA</p>
+    </footer>
+</body>
+
+</html>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        background-color: #f4f4f4;
+    }
+
+    h1,
+    h2 {
+        color: #333;
+    }
+
+
+    input[type="email"],
+    input[type="text"],
+    textarea,
+    select {
+        width: calc(100% - 20px);
+        padding: 10px;
+        margin: 10px 0;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    button[type="submit"] {
+        padding: 10px 20px;
+        background-color: #333;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    button[type="submit"]:hover {
+        background-color: #555;
+    }
+
+    .topnav {
+            background-color: #333;
+            overflow: hidden;
+        }
+
+
+        .topnav a {
+            float: left;
+            color: #f2f2f2;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+            font-size: 17px;
+        }
+
+
+        .topnav a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+
+
+        .topnav a.active {
+            background-color: #04AA6D;
+            color: white;
+        }
+
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            bottom: 0;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 10px;
+            }
+
+            footer p {
+                margin: 0;
+                font-size: 18px;
+            }
+
+            footer img {
+                margin-right: 10px;
+                border-radius: 50%;
+            }
+</style>

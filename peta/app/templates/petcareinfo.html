@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User's Pets</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<div class="topnav">
+    <a href="pet_search_page">Pet Adoption</a>
+    <a href="/petcare">Pet Care</a>
+    <a href="/vet-appointment">Vet Appointment</a>
+    <a href="/current-applications">Current Applications</a>
+    <div class="lean-right">
+        <a class="active" href="login">Log Out</a>
+    </div>
+</div>
+
+<body>
+
+    </div>
+    <div class="content">
+        <h1>User's Pets</h1>
+        <div class="pet-container">
+            {% for pet in pets %}
+            <div class="pet-card">
+                <h2>{{ pet.Name }}</h2>
+                <p>
+                    Breed: {{ pet.Breed }} |
+                    Gender: {{ pet.Gender }} |
+                    Age: {{ pet.Age }} years old
+                </p>
+                <p>
+                    Description: {{ pet.Description }} |
+                    Adoption Status: {{ pet.Adoption_Status }}
+                </p>
+                <p>Medical History: {{ pet.Medical_History }}</p>
+                <div class="button-group">
+                    <a href="/petcare/{{ pet.Type }}">
+                        <button>See Pet Care Information</button>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <footer>
+        <img src="{{ url_for('static', filename='PETA.jpeg') }}" alt="PETA Icon" style="width: 50px; height: 50px; margin-bottom: 10px;">
+        <p>PETA</p>
+    </footer>
+</body>
+
+</html>
+<style>
+    .lean-right {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+    .topnav {
+        background-color: #333;
+        overflow: hidden;
+    }
+
+    .topnav a {
+        float: left;
+        color: #f2f2f2;
+        text-align: center;
+        padding: 14px 16px;
+        text-decoration: none;
+        font-size: 17px;
+    }
+
+    .topnav a:hover {
+        background-color: #ddd;
+        color: black;
+    }
+
+    .topnav a.active {
+        background-color: #04AA6D;
+        color: white;
+    }
+
+
+    .content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding-top: 20px;
+        margin-bottom: 200px;
+    }
+
+    .pet-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .pet-card {
+        background-color: #d8dee8;
+        width: 300px;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+    }
+
+    .pet-card h2 {
+        margin-bottom: 10px;
+    }
+
+    .button-group {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 15px;
+    }
+
+    .button-group button {
+        padding: 8px 16px;
+        background-color: #333;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .button-group button:hover {
+        background-color: #04AA6D;
+    }
+
+    footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            bottom: 0;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            }
+
+            footer p {
+                margin: 0;
+                font-size: 18px;
+            }
+
+            footer img {
+                margin-right: 10px;
+                border-radius: 50%;
+            }
+
+</style>
