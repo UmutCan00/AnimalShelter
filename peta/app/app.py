@@ -55,24 +55,20 @@ def login():
         if user:
             userId = user["User_ID"]
             # now lets find the user type
-            
+
             cursor.execute(
                 "SELECT * FROM Veterinarian WHERE User_ID = % s",
-                (
-                    userId,
-                ),
+                (userId,),
             )
             veterinarian = cursor.fetchone()
-            #message = veterinarian
+            # message = veterinarian
             if veterinarian:
                 session["userType"] = "Veterinarian"
                 session["userid"] = userId
             else:
                 cursor.execute(
                     "SELECT * FROM AnimalShelter WHERE User_ID = % s",
-                    (
-                        userId,
-                    ),
+                    (userId,),
                 )
                 animalShelter = cursor.fetchone()
                 if animalShelter:
@@ -82,9 +78,7 @@ def login():
                 else:
                     cursor.execute(
                         "SELECT * FROM AnimalShelter WHERE User_ID = % s",
-                        (
-                            userId,
-                        ),
+                        (userId,),
                     )
                     adminUser = cursor.fetchone()
                     if adminUser:
@@ -676,6 +670,49 @@ def current_applications():
     return render_template("current_applications.html", applications=applications)
 
 
+@app.route("/new-adoption-application/<pet_id>", methods=["GET", "POST"])
+def new_adoption_application(pet_id):
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+    cursor.execute("SELECT * FROM Pet WHERE Pet_ID = %s", (pet_id,))
+    pet_details = cursor.fetchone()
+
+    if not pet_details:
+        return "Pet or application not found", 404
+
+    if pet_details["Adoption_Status"] == "Approved":
+        return "Pet is approved for adoption", 401
+
+    if request.method == "POST":
+        applicant_name = request.form["applicant_name"]
+        new_app_id = "A" + str("123342")
+        hash = sum(
+            ord(char) for char in session["userid"] + pet_id + applicant_name
+        ) % (10**9)
+        new_app_id = "A" + str(hash)
+
+        # Insert into AdoptionApplication table
+        cursor.execute(
+            "INSERT INTO AdoptionApplication (Application_ID, User_ID, Application_Date, Application_Status) VALUES (%s, %s, CURDATE(), %s)",
+            (new_app_id, session["userid"], "Unapproved"),
+        )
+        mysql.connection.commit()
+
+        # Insert into Pet_Adoption table
+        cursor.execute(
+            "INSERT INTO Pet_Adoption (Application_ID, Pet_ID) VALUES (%s, %s)",
+            (new_app_id, pet_id),
+        )
+        mysql.connection.commit()
+
+        # Additional processing or redirection after submission
+        return render_template(
+            "newadoption.html", pet_details=pet_details, submitted=True
+        )
+
+    return render_template("newadoption.html", pet_details=pet_details)
+
+
 @app.route("/registerPet", methods=["GET", "POST"])
 def registerPet():
     message = ""
@@ -775,11 +812,10 @@ def registerPet():
             maxNum = 0
             for pet in pets:
                 lastId = int(pet["Pet_ID"][1:])
-                if maxNum<lastId:
+                if maxNum < lastId:
                     maxNum = lastId
             nextId = "P" + str(maxNum + 1)
-            
-            
+
             # insert new Pet
             cursor.execute(
                 "INSERT INTO Pet (Pet_ID, Type, Name, Breed, Date_of_Birth, Age, Gender, Description, Adoption_Status, Medical_History, adoption_Fee) VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
@@ -854,7 +890,6 @@ def current_adopted_pets():
 @app.route("/shelterAnimalList", methods=["GET", "POST"])
 def shelterAnimalList():
     if request.method == "GET":
-
         shelterId = session["userid"]
         userType = session["userType"]
         if not userType == "AnimalShelter":
