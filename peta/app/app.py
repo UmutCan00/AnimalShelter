@@ -851,6 +851,60 @@ def current_adopted_pets():
             return redirect(url_for("login"))
 
 
+@app.route("/vet_page", methods=["GET", "POST"])
+def vet_page():
+    if request.method == "GET":
+        userid = session["userid"]
+        message = userid
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        if userid:
+            cursor.execute(
+                """
+                    SELECT *
+                    FROM user U 
+                    NATURAL JOIN vet_appoint V 
+                    NATURAL JOIN Appointment A 
+                    WHERE A.AppointmentStatus = 'Unconfirmed' AND U.User_ID = %s;
+                """,
+                (userid,),
+            )
+            notConfirmedAppointments = cursor.fetchall()
+            message = notConfirmedAppointments
+            cursor.execute(
+                """
+                    SELECT *
+                    FROM user U 
+                    NATURAL JOIN vet_appoint V 
+                    NATURAL JOIN Appointment A 
+                    WHERE A.AppointmentStatus = 'Confirmed' AND U.User_ID = %s;
+                """,
+                (userid,),
+            )
+            notConfirmedAppointments = cursor.fetchall()
+            message2 = notConfirmedAppointments
+            return render_template(
+                "vet_page.html", message=message, message2=message2
+            )  # , userid=userid, username=username, dept=dept, bdate=bdate, year=year, gpa=gpa)
+        else:
+            return redirect(url_for("vet_page"))
+
+
+@app.route('/confirm-appointment', methods=['POST'])
+def confirm_appointment():
+    return jsonify({'status': 'success', 'message': 'Appointment confirmed successfully'})
+    data = request.get_json()
+    Appointment_ID = data.get('Appointment_ID')
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute(
+                """
+                    UPDATE Appointment
+                    SET Status = 'Confirmed'
+                    WHERE Appointment_ID = %s ;
+                """,
+                (Appointment_ID,),
+            )
+    return jsonify({'status': 'success', 'message': 'Appointment confirmed successfully'})
+
 @app.route("/shelterAnimalList", methods=["GET", "POST"])
 def shelterAnimalList():
     if request.method == "GET":

@@ -111,15 +111,35 @@ CREATE TABLE Appointment (
     Appointment_ID CHAR(11) PRIMARY KEY,
     Date DATE,
     Time TIME,
+    AppointmentStatus VARCHAR(25),
     Purpose VARCHAR(255)
 );
 
+INSERT INTO Appointment
+VALUES
+    ('APP001', '1800-01-01', '01:02:03', "Unconfirmed", "purp-1"),
+    ('APP002', '1800-01-02', '02:04:08', "Unconfirmed", "purp-2"),
+    ('APP003', '1800-01-03', '03:06:09', "Unconfirmed", "purp-3"),
+    ('APP004', '1800-01-04', '04:08:12', "Confirmed", "purp-4"),
+    ('APP005', '1800-01-05', '05:10:15', "Confirmed", "purp-5");
+
+
 CREATE TABLE vet_appoint(
     Appointment_ID CHAR(11),
+    Patient_ID CHAR(11),
     User_ID CHAR(11),
     FOREIGN KEY (Appointment_ID) REFERENCES Appointment(Appointment_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Patient_ID) REFERENCES user(User_ID) ON DELETE CASCADE,
     FOREIGN KEY (User_ID) REFERENCES user(User_ID) ON DELETE CASCADE
 );
+
+INSERT INTO vet_appoint
+VALUES
+    ('APP001', 'U001', 'V001'),
+    ('APP002', 'U002', 'V001'),
+    ('APP003', 'U001', 'V002'),
+    ('APP004', 'U001', 'V001'),
+    ('APP005', 'U001', 'V002');
 
 CREATE TABLE met (
     Pet_ID CHAR(11),
