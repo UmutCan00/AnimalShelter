@@ -899,10 +899,10 @@ def current_adopted_pets():
 
 @app.route("/vet_page", methods=["GET", "POST"])
 def vet_page():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     if request.method == "GET":
         userid = session["userid"]
         message = userid
-        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
         if userid:
             cursor.execute(
                 """
@@ -934,22 +934,84 @@ def vet_page():
         else:
             return redirect(url_for("vet_page"))
 
-
-@app.route('/confirm-appointment', methods=['POST'])
-def confirm_appointment():
-    return jsonify({'status': 'success', 'message': 'Appointment confirmed successfully'})
-    data = request.get_json()
-    Appointment_ID = data.get('Appointment_ID')
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cursor.execute(
-                """
-                    UPDATE Appointment
-                    SET Status = 'Confirmed'
-                    WHERE Appointment_ID = %s ;
-                """,
-                (Appointment_ID,),
+    if request.method == "POST":
+        userid = session["userid"]
+        appointment_id = request.form["Appointment_ID"]
+        cursor.execute(
+            """
+                SELECT *
+                FROM user U 
+                NATURAL JOIN vet_appoint V 
+                NATURAL JOIN Appointment A 
+                WHERE A.AppointmentStatus = 'Unconfirmed' AND U.User_ID = %s;
+            """,
+            (userid,),
+        )
+        notConfirmedAppointments = cursor.fetchall()
+        message = notConfirmedAppointments
+        cursor.execute(
+            """
+                SELECT *
+                FROM user U 
+                NATURAL JOIN vet_appoint V 
+                NATURAL JOIN Appointment A 
+                WHERE A.AppointmentStatus = 'Confirmed' AND U.User_ID = %s;
+            """,
+            (userid,),
+        )
+        notConfirmedAppointments = cursor.fetchall()
+        message2 = notConfirmedAppointments
+        if "approve" in request.form:
+            # Handle appointment confirmation
+            cursor = mysql.connection.cursor()
+            cursor.execute(
+                "UPDATE Appointment SET AppointmentStatus = 'Confirmed' WHERE Appointment_ID = %s",
+                (appointment_id,),
             )
-    return jsonify({'status': 'success', 'message': 'Appointment confirmed successfully'})
+            mysql.connection.commit()
+            error = appointment_id
+            return render_template(
+                "vet_page.html",
+                message=message,
+                message2=message2,
+                error=appointment_id,
+            )
+
+        else:
+            appointment_id = request.form["Appointment_ID"]
+            new_date = request.form["newDate"]
+            new_time = request.form["newTime"]
+            cursor.execute(
+                "UPDATE Appointment SET Date = %s, Time = %s, AppointmentStatus = 'Confirmed' WHERE Appointment_ID = %s",
+                (new_date, new_time, appointment_id),
+            )
+            mysql.connection.commit()
+            # Perform the necessary database update here
+            # For example, assuming you have a database connection:
+            # cursor.execute("UPDATE Appointment SET Date = %s, Time = %s WHERE Appointment_ID = %s", (new_date, new_time, appointment_id))
+            # Remember to commit the changes if you're using a database
+
+            # Send a response indicating success
+            return "Appointment rescheduled successfully", 200
+
+            # Update the Appointment table with the new date, time, and status
+            cursor.execute(
+                "UPDATE Appointment SET Date = %s, Time = %s, AppointmentStatus = 'Confirmed' WHERE Appointment_ID = %s",
+                (new_date, new_time, appointment_id),
+            )
+            mysql.connection.commit()
+            return render_template(
+                "vet_page.html",
+                message=message,
+                message2=message2,
+                error=appointment_id,
+            )
+
+        error = appointment_id
+    return render_template(
+        "vet_page.html", message=message, message2=message2, error=appointment_id
+    )
+
 
 @app.route("/shelterAnimalList", methods=["GET", "POST"])
 def shelterAnimalList():
