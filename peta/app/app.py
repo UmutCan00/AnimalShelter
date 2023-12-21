@@ -283,6 +283,10 @@ def schedule_online_meeting(pet_id):
         appointment_time = request.form["appointment-time"]
         selected_vet = request.form["veterinarian"]
         random_number = "1234"
+        hash = sum(ord(char) for char in session["userid"] + pet_id + problems) % (
+            10**9
+        )
+        random_number = "A" + str(hash)
         # Check if email and full name match the user in the session
 
         user_id = session["userid"]
@@ -312,18 +316,10 @@ def schedule_online_meeting(pet_id):
                 (random_number, user_id),
             )
 
-            # Fetch the newly inserted Appointment_ID
             cursor.execute(
                 "SELECT Appointment_ID FROM Appointment ORDER BY Appointment_ID DESC LIMIT 1"
             )
             appointment_id = cursor.fetchone()["Appointment_ID"]
-
-            # Insert data into vet_appoint table
-            cursor.execute(
-                "INSERT INTO vet_appoint (Appointment_ID, User_ID) VALUES (%s, %s)",
-                (appointment_id, user_id),
-            )
-            mysql.connection.commit()
 
             form_success = True
             return render_template(
@@ -558,6 +554,20 @@ applications_data = {
         "Shelter_Approved": True,
     }
 }
+
+
+@app.route("/current-vet-appointments")
+def vet_appointments():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute(
+        "SELECT * FROM vet_appoint JOIN Appointment ON vet_appoint.Appointment_ID = Appointment.Appointment_ID"
+    )
+    vet_appointment_data = cursor.fetchall()
+    cursor.close()
+
+    return render_template(
+        "current_vet_appointments.html", vet_appointment_data=vet_appointment_data
+    )
 
 
 @app.route("/adoption-application/<id>", methods=["GET", "POST"])
