@@ -286,7 +286,6 @@ def schedule_online_meeting(pet_id):
         problems = request.form["problems"]
         appointment_time = request.form["appointment-time"]
         selected_vet = request.form["veterinarian"]
-        random_number = "1234"
         hash = sum(ord(char) for char in session["userid"] + pet_id + problems) % (
             10**9
         )
@@ -316,9 +315,10 @@ def schedule_online_meeting(pet_id):
             )
             mysql.connection.commit()
             cursor.execute(
-                "INSERT INTO vet_appoint (Appointment_ID, User_ID) VALUES (%s, %s)",
+                "INSERT INTO vet_appoint (Appointment_ID, Patient_ID) VALUES (%s, %s)",
                 (random_number, user_id),
             )
+            mysql.connection.commit()
 
             cursor.execute(
                 "SELECT Appointment_ID FROM Appointment ORDER BY Appointment_ID DESC LIMIT 1"
@@ -562,10 +562,13 @@ applications_data = {
 
 @app.route("/current-vet-appointments")
 def vet_appointments():
+    user_id = session["userid"]
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute(
-        "SELECT * FROM vet_appoint JOIN Appointment ON vet_appoint.Appointment_ID = Appointment.Appointment_ID"
+        "SELECT * FROM vet_appoint JOIN Appointment ON vet_appoint.Appointment_ID = Appointment.Appointment_ID WHERE vet_appoint.Patient_ID = %s",
+        (user_id,),
     )
+
     vet_appointment_data = cursor.fetchall()
     cursor.close()
 
