@@ -8,11 +8,13 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <div class="topnav">
-    <a href="/">Home</a>
-    <a href="">Pet Adoption</a>
+    <a href="pet_search_page">Pet Adoption</a>
     <a href="/petcare">Pet Care</a>
     <a href="/vet-appointment">Vet Appointment</a>
     <a href="/current-applications">Current Applications</a>
+    <div class="lean-right">
+        <a class="active" href="login">Log Out</a>
+    </div>
 </div>
 
 <body>
@@ -43,10 +45,20 @@
             {% endfor %}
         </div>
     </div>
+
+    <footer>
+        <img src="{{ url_for('static', filename='PETA.jpeg') }}" alt="PETA Icon" style="width: 50px; height: 50px; margin-bottom: 10px;">
+        <p>PETA</p>
+    </footer>
 </body>
 
 </html>
 <style>
+    .lean-right {
+            display: flex;
+            justify-content: flex-end;
+        }
+
     .topnav {
         background-color: #333;
         overflow: hidden;
@@ -78,6 +90,7 @@
         align-items: center;
         justify-content: center;
         padding-top: 20px;
+        margin-bottom: 200px;
     }
 
     .pet-container {
@@ -118,4 +131,27 @@
     .button-group button:hover {
         background-color: #04AA6D;
     }
+
+    footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            bottom: 0;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            }
+
+            footer p {
+                margin: 0;
+                font-size: 18px;
+            }
+
+            footer img {
+                margin-right: 10px;
+                border-radius: 50%;
+            }
+
 </style>

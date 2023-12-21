@@ -1,14 +1,8 @@
 <body>
     <link href="/stylesheets/style.css" />
     <div class="topnav">
-        <a class="active" href="/">Home</a>
-        <a href="/pet_search_page">Pet Adoption</a>
-        <a href="/petcare">Pet Care</a>
-        <a href="/vet-appointment">Vet Appointment</a>
-        <a href="/current-applications">Current Applications</a>
-        <a href="/current-vet-appointments">Current Appointments</a>
         <div class="lean-right">
-            <a href="login">Login</a>
+            <a class="active" href="login">Login</a>
             <a href="register">Signup</a>
         </div>
     </div>
@@ -16,21 +10,13 @@
         <h1>
             Welcome to Peta Animal Shelter System
         </h1>
-        {% if message is defined and message %}
-        <h2>
-            <div class="alert alert-warning">{{ message }}</div>
-        </h2>
-        {% endif %}
-        <form action="{{ url_for('login') }}" method="get" style="display:inline-block;">
-            <button class="btn btn-primary homebtn">Login</button>
-        </form>
-        <form action="{{ url_for('register') }}" method="get" style="display:inline-block;">
-            <button class="btn btn-primary homebtn">Signup</button>
-        </form>
     </div>
 </body>
 
 <style>
+    h1 {
+        text-align: center;
+    }
     .lean-right {
         display: flex;
         justify-content: flex-end;

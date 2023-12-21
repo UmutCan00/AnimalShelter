@@ -24,12 +24,7 @@ mysql = MySQL(app)
 @app.route("/", methods=["GET"])
 def home():
     message = ""
-    if "userid" in session:
-        userid = session["userid"]
-        message = "Logged in with userid= " + userid
-    else:
-        message = "Not logged in"
-    return render_template("auth/home.html", message=message)
+    return redirect(url_for("login"))
 
 
 # Login Page Function

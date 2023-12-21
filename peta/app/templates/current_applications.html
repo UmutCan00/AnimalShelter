@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
-<div class="topnav">
-    <a href="/">Home</a>
-    <a href="">Pet Adoption</a>
-    <a href="/petcare">Pet Care</a>
-    <a href="/vet-appointment">Vet Appointment</a>
-    <a href="/current-applications">Current Applications</a>
-</div>
+    <div class="topnav">
+        <a href="/pet_search_page">Pet Adoption</a>
+        <a href="/petcare">Pet Care</a>
+        <a href="/vet-appointment">Vet Appointment</a>
+        <a href="/current-applications">Current Applications</a>
+        <div class="lean-right">
+            <a class="active" href="login">Log Out</a>
+        </div>
+    </div>
 
 <head>
     <meta charset="UTF-8">
@@ -14,6 +16,11 @@
 
     <title>Current Applications</title>
     <style>
+        .lean-right {
+            display: flex;
+            justify-content: flex-end;
+        }
+
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -77,6 +84,7 @@
             align-items: center;
             justify-content: center;
             padding-top: 20px;
+            margin-bottom: 300px;
         }
 
         .pet-container {
@@ -117,35 +125,65 @@
         .button-group button:hover {
             background-color: #04AA6D;
         }
+
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            bottom: 0;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            }
+
+            footer p {
+                margin: 0;
+                font-size: 18px;
+            }
+
+            footer img {
+                margin-right: 10px;
+                border-radius: 50%;
+            }
     </style>
 </head>
 
 <body>
     <h1>Current Applications</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>Application ID</th>
-                <th>Application Date</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for application in applications %}
-            <tr onclick="openAdoptionApplication('{{ application.Application_ID }}')">
-                <td>{{ application.Application_ID }}</td>
-                <td>{{ application.Application_Date }}</td>
-                <td>{{ application.Application_Status }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="content">
+        <table>
+            <thead>
+                <tr>
+                    <th>Application ID</th>
+                    <th>Application Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for application in applications %}
+                <tr onclick="openAdoptionApplication('{{ application.Application_ID }}')">
+                    <td>{{ application.Application_ID }}</td>
+                    <td>{{ application.Application_Date }}</td>
+                    <td>{{ application.Application_Status }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    
+        <script>
+            function openAdoptionApplication(id) {
+                window.location.href = `/adoption-application/${id}`;
+            }
+        </script>
+    </div>
+    
 
-    <script>
-        function openAdoptionApplication(id) {
-            window.location.href = `/adoption-application/${id}`;
-        }
-    </script>
+    <footer>
+        <img src="{{ url_for('static', filename='PETA.jpeg') }}" alt="PETA Icon" style="width: 50px; height: 50px; margin-bottom: 10px;">
+        <p>PETA</p>
+    </footer>
 </body>
 
 </html>

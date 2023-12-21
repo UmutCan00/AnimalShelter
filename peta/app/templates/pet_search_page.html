@@ -8,8 +8,6 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
         }
 
         .lean-right {
@@ -148,19 +146,39 @@
         .search-button:hover {
             background-color: #04AA6D;
         }
+
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            bottom: 0;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            }
+
+            footer p {
+                margin: 0;
+                font-size: 18px;
+            }
+
+            footer img {
+                margin-right: 10px;
+                border-radius: 50%;
+            }
     </style>
 </head>
 
 <body>
     <div class="topnav">
-        <a class="active" href="/">Home</a>
-        <a href="">Pet Adoption</a>
+        <a href="/pet_search_page">Pet Adoption</a>
         <a href="/petcare">Pet Care</a>
         <a href="/vet-appointment">Vet Appointment</a>
         <a href="/current-applications">Current Applications</a>
         <div class="lean-right">
-            <a href="login">Login</a>
-            <a href="register">Signup</a>
+            <a class="active" href="login">Log Out</a>
         </div>
     </div>
 
@@ -225,6 +243,11 @@
 
         </div>
     </div>
+
+    <footer>
+        <img src="{{ url_for('static', filename='PETA.jpeg') }}" alt="PETA Icon" style="width: 50px; height: 50px; margin-bottom: 10px;">
+        <p>PETA</p>
+    </footer>
 </body>
 
 </html>

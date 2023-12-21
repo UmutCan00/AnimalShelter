@@ -1,3 +1,7 @@
+<div class="topnav">
+    <a href="/current-applications">Back to Current Applications</a>
+</div>
+
 <div>
     <!-- Pet Details -->
     <h1>Pet Details</h1>
@@ -95,20 +99,16 @@
         <button type="submit" name="cancel_application">Cancel Application</button>
     </form>
 </div>
+
+<footer>
+    <img src="{{ url_for('static', filename='PETA.jpeg') }}" alt="PETA Icon" style="width: 50px; height: 50px; margin-bottom: 10px;">
+    <p>PETA</p>
+</footer>
 <style>
     body {
         font-family: Arial, sans-serif;
-        margin: 0;
         padding: 20px;
         background-color: #f4f4f4;
-    }
-
-    div {
-        background-color: #fff;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        margin-bottom: 20px;
     }
 
     h1,
@@ -164,4 +164,54 @@
     button[type="submit"]:hover {
         background-color: #555;
     }
+
+    .topnav {
+            background-color: #333;
+            overflow: hidden;
+        }
+
+
+        .topnav a {
+            float: left;
+            color: #f2f2f2;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+            font-size: 17px;
+        }
+
+
+        .topnav a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+
+
+        .topnav a.active {
+            background-color: #04AA6D;
+            color: white;
+        }
+
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            bottom: 0;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 10px;
+            }
+
+            footer p {
+                margin: 0;
+                font-size: 18px;
+            }
+
+            footer img {
+                margin-right: 10px;
+                border-radius: 50%;
+            }
 </style>
