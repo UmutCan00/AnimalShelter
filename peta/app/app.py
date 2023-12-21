@@ -737,10 +737,9 @@ def registerPet():
         and "name" in request.form
     ):
         # real
-        # userid = session["userid"]
+        userid = session["userid"]
 
         # for dev purposes must be changed when in Use
-        userid = "AS001"
 
         # get form info
         animalType = request.form["type"]
@@ -868,6 +867,83 @@ def registerPet():
 
     return render_template("shelter/registerPet.html", message=message)
 
+
+
+@app.route("/donationApplication", methods=["GET", "POST"])
+def donationApplication():
+    if request.method == "POST":
+        message = ""
+        if (
+            request.method == "POST"
+            and "type" in request.form
+            and "breed" in request.form
+            and "dateOfBirth" in request.form
+            and "vacCard" in request.form
+            and "gender" in request.form
+            and "description" in request.form
+            and "name" in request.form
+            and "shelter" in request.form
+        ):
+            # real
+            userid = session["userid"]
+
+            # get form info
+            animalType = request.form["type"]
+            animalBreed = request.form["breed"]
+            dateOfBirth = request.form["dateOfBirth"]
+            vacCard = request.form["vacCard"]
+            gender = request.form["gender"]
+            description = request.form["description"]
+            animalName = request.form["name"]
+            animalFee = request.form["fee"]
+            animalShelter = request.form["shelter"]
+            # for test
+            printer = (
+                "animalType: ",
+                animalType,
+                "animalBreed: ",
+                animalBreed,
+                "dateOfBirth: ",
+                dateOfBirth,
+                "vacCard: ",
+                vacCard,
+                "gender: ",
+                gender,
+                "description: ",
+                description,
+                "animalName: ",
+                animalName,
+                "animalFee: ",
+                animalFee,
+            )
+            message = printer
+            if not animalFee:
+                animalFee = 0
+            # control missing info
+            if (
+                not animalType
+                or not animalBreed
+                or not dateOfBirth
+                or not vacCard
+                or not gender
+                or not description
+                or not animalName
+            ):
+                message = "Please fill out the form!"
+                return render_template("shelter/registerPet.html", message=message)
+
+        
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute("SELECT * FROM AnimalShelter")
+        account = cursor.fetchall()
+        tuples = list(account)
+        return render_template("shelter/donationApplication.html", message=tuples, message2 = tuples)
+    else:
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute("SELECT * FROM AnimalShelter")
+        account = cursor.fetchall()
+        tuples = list(account)
+        return render_template("shelter/donationApplication.html", message=tuples, message2 = tuples)
 
 @app.route("/current_adopted_pets", methods=["GET", "POST"])
 def current_adopted_pets():
