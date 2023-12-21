@@ -55,24 +55,20 @@ def login():
         if user:
             userId = user["User_ID"]
             # now lets find the user type
-            
+
             cursor.execute(
                 "SELECT * FROM Veterinarian WHERE User_ID = % s",
-                (
-                    userId,
-                ),
+                (userId,),
             )
             veterinarian = cursor.fetchone()
-            #message = veterinarian
+            # message = veterinarian
             if veterinarian:
                 session["userType"] = "Veterinarian"
                 session["userid"] = userId
             else:
                 cursor.execute(
                     "SELECT * FROM AnimalShelter WHERE User_ID = % s",
-                    (
-                        userId,
-                    ),
+                    (userId,),
                 )
                 animalShelter = cursor.fetchone()
                 if animalShelter:
@@ -82,9 +78,7 @@ def login():
                 else:
                     cursor.execute(
                         "SELECT * FROM AnimalShelter WHERE User_ID = % s",
-                        (
-                            userId,
-                        ),
+                        (userId,),
                     )
                     adminUser = cursor.fetchone()
                     if adminUser:
@@ -289,6 +283,10 @@ def schedule_online_meeting(pet_id):
         appointment_time = request.form["appointment-time"]
         selected_vet = request.form["veterinarian"]
         random_number = "1234"
+        hash = sum(ord(char) for char in session["userid"] + pet_id + problems) % (
+            10**9
+        )
+        random_number = "A" + str(hash)
         # Check if email and full name match the user in the session
 
         user_id = session["userid"]
@@ -318,18 +316,10 @@ def schedule_online_meeting(pet_id):
                 (random_number, user_id),
             )
 
-            # Fetch the newly inserted Appointment_ID
             cursor.execute(
                 "SELECT Appointment_ID FROM Appointment ORDER BY Appointment_ID DESC LIMIT 1"
             )
             appointment_id = cursor.fetchone()["Appointment_ID"]
-
-            # Insert data into vet_appoint table
-            cursor.execute(
-                "INSERT INTO vet_appoint (Appointment_ID, User_ID) VALUES (%s, %s)",
-                (appointment_id, user_id),
-            )
-            mysql.connection.commit()
 
             form_success = True
             return render_template(
@@ -566,6 +556,20 @@ applications_data = {
 }
 
 
+@app.route("/current-vet-appointments")
+def vet_appointments():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute(
+        "SELECT * FROM vet_appoint JOIN Appointment ON vet_appoint.Appointment_ID = Appointment.Appointment_ID"
+    )
+    vet_appointment_data = cursor.fetchall()
+    cursor.close()
+
+    return render_template(
+        "current_vet_appointments.html", vet_appointment_data=vet_appointment_data
+    )
+
+
 @app.route("/adoption-application/<id>", methods=["GET", "POST"])
 def adoption_application(id):
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -676,6 +680,49 @@ def current_applications():
     return render_template("current_applications.html", applications=applications)
 
 
+@app.route("/new-adoption-application/<pet_id>", methods=["GET", "POST"])
+def new_adoption_application(pet_id):
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+    cursor.execute("SELECT * FROM Pet WHERE Pet_ID = %s", (pet_id,))
+    pet_details = cursor.fetchone()
+
+    if not pet_details:
+        return "Pet or application not found", 404
+
+    if pet_details["Adoption_Status"] == "Approved":
+        return "Pet is approved for adoption", 401
+
+    if request.method == "POST":
+        applicant_name = request.form["applicant_name"]
+        new_app_id = "A" + str("123342")
+        hash = sum(
+            ord(char) for char in session["userid"] + pet_id + applicant_name
+        ) % (10**9)
+        new_app_id = "A" + str(hash)
+
+        # Insert into AdoptionApplication table
+        cursor.execute(
+            "INSERT INTO AdoptionApplication (Application_ID, User_ID, Application_Date, Application_Status) VALUES (%s, %s, CURDATE(), %s)",
+            (new_app_id, session["userid"], "Unapproved"),
+        )
+        mysql.connection.commit()
+
+        # Insert into Pet_Adoption table
+        cursor.execute(
+            "INSERT INTO Pet_Adoption (Application_ID, Pet_ID) VALUES (%s, %s)",
+            (new_app_id, pet_id),
+        )
+        mysql.connection.commit()
+
+        # Additional processing or redirection after submission
+        return render_template(
+            "newadoption.html", pet_details=pet_details, submitted=True
+        )
+
+    return render_template("newadoption.html", pet_details=pet_details)
+
+
 @app.route("/registerPet", methods=["GET", "POST"])
 def registerPet():
     message = ""
@@ -775,11 +822,10 @@ def registerPet():
             maxNum = 0
             for pet in pets:
                 lastId = int(pet["Pet_ID"][1:])
-                if maxNum<lastId:
+                if maxNum < lastId:
                     maxNum = lastId
             nextId = "P" + str(maxNum + 1)
-            
-            
+
             # insert new Pet
             cursor.execute(
                 "INSERT INTO Pet (Pet_ID, Type, Name, Breed, Date_of_Birth, Age, Gender, Description, Adoption_Status, Medical_History, adoption_Fee) VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
@@ -908,7 +954,6 @@ def confirm_appointment():
 @app.route("/shelterAnimalList", methods=["GET", "POST"])
 def shelterAnimalList():
     if request.method == "GET":
-
         shelterId = session["userid"]
         userType = session["userType"]
         if not userType == "AnimalShelter":
