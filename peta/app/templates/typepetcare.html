@@ -97,7 +97,6 @@
         <h1>Pet Care Information</h1>
         <div class="care-info">
             {% if pet_type == 'Dog' %}
-            <!-- Content for Dog Care Information -->
             <h2>Dog Care Information</h2>
             <p>Dogs require regular exercise to maintain their health and happiness. Proper grooming and hygiene
                 practices are crucial. Regular vet check-ups, vaccinations, and a balanced diet contribute to a dog's
@@ -106,14 +105,12 @@
                 toys to keep them mentally stimulated. Always provide fresh water and ensure a comfortable living space.
             </p>
             {% elif pet_type == 'Cat' %}
-            <!-- Content for Cat Care Information -->
             <h2>Cat Care Information</h2>
             <p>Cats need regular grooming and attention to maintain their coat and overall health. Proper nutrition,
                 including a balanced diet and access to fresh water, is vital for their well-being.</p>
             <p>Provide a litter box and a comfortable resting place for your cat. Regular vet check-ups, vaccinations,
                 and parasite prevention are essential. Stimulate your cat's mind with interactive toys and playtime.</p>
             {% elif pet_type == 'Fish' %}
-            <!-- Content for Fish Care Information -->
             <h2>Fish Care Information</h2>
             <p>Properly maintain the aquarium water temperature, pH level, and cleanliness to ensure the health of your
                 fish. Feed them appropriate food and avoid overfeeding, which can lead to water contamination.</p>
@@ -121,7 +118,6 @@
                 clean the tank and perform partial water changes. Research and provide the ideal habitat for your fish.
             </p>
             {% else %}
-            <!-- Handle if the pet type is not recognized -->
             <p>Pet type not found!</p>
             {% endif %}
         </div>

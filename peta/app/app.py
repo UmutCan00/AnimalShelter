@@ -24,7 +24,12 @@ mysql = MySQL(app)
 @app.route("/", methods=["GET"])
 def home():
     message = ""
-    return redirect(url_for("login"))
+    if "userid" in session:
+        userid = session["userid"]
+        message = "Logged in with userid= " + userid
+    else:
+        message = "Not logged in"
+    return render_template("auth/home.html", message=message)
 
 
 # Login Page Function
@@ -78,8 +83,7 @@ def login():
                         "SELECT * FROM Administrator WHERE User_ID = % s",
                         (userId,),
                     )
-                    adminUser = cursor.fetchone()
-                    if adminUser:
+                    if "AD" in userId :
                         session["userType"] = "Admin"
                         session["userid"] = userId
                         return redirect(url_for("admin_panel"))
