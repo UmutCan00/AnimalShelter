@@ -19,20 +19,10 @@ app.config["MYSQL_DB"] = "AnimalShelter"
 
 mysql = MySQL(app)
 
-
-# Home Page Function
 @app.route("/", methods=["GET"])
 def home():
-    message = ""
-    if "userid" in session:
-        userid = session["userid"]
-        message = "Logged in with userid= " + userid
-    else:
-        message = "Not logged in"
-    return render_template("auth/home.html", message=message)
+    return redirect(url_for("login"))
 
-
-# Login Page Function
 @app.route("/login", methods=["GET", "POST"])
 def login():
     message = ""
@@ -56,14 +46,12 @@ def login():
         user = cursor.fetchone()
         if user:
             userId = user["User_ID"]
-            # now lets find the user type  31 nigga 31
 
             cursor.execute(
                 "SELECT * FROM Veterinarian WHERE User_ID = % s",
                 (userId,),
             )
             veterinarian = cursor.fetchone()
-            # message = veterinarian
             if veterinarian:
                 session["userType"] = "Veterinarian"
                 session["userid"] = userId
@@ -101,8 +89,6 @@ def login():
 def suite():
     return render_template("auth/suite.html")
 
-
-# Signup Page Function
 @app.route("/register", methods=["GET", "POST"])
 def register():
     message = ""
@@ -117,14 +103,12 @@ def register():
         phone = request.form["phone"]
         role = request.form["role"]
 
-        # Additional fields for Veterinarian
         if role == "vet":
             specialization = request.form["specialization"]
             clinic_name = request.form["clinic_name"]
             clinic_id = request.form["clinic_id"]
             status = request.form["status"]
 
-        # Validation checks
         if any(
             value == ""
             for value in (email, password, confirm_password, name, surname, phone, role)
@@ -147,18 +131,15 @@ def register():
             return render_template("auth/register.html", message=message)
 
         try:
-            # Generate a random 6-digit User_ID
             new_user_id = "U" + str("123342")
             hashed_email = sum(ord(char) for char in email) % (10**9)
             new_user_id = "U" + str(hashed_email)
-            # Insert user into 'user' table with generated User_ID
             cursor.execute(
                 "INSERT INTO user (User_ID, Password, First_Middle_Name, Last_Name, Email, Phone_Number) VALUES (%s, %s, %s, %s, %s, %s)",
                 (new_user_id, password, name, surname, email, phone),
             )
             mysql.connection.commit()
 
-            # Insert user into respective table based on role
             if role == "vet":
                 cursor.execute(
                     "INSERT INTO Veterinarian (User_ID, Specialization, Clinic_Name, Clinic_ID, Status) VALUES (%s, %s, %s, %s, %s)",
@@ -167,12 +148,12 @@ def register():
             elif role == "adopter":
                 cursor.execute(
                     "INSERT INTO Adopter (User_ID, Number_of_Adoptions) VALUES (%s, %s)",
-                    (new_user_id, 0),  # You may adjust the initial value here
+                    (new_user_id, 0),
                 )
             elif role == "shelter":
                 cursor.execute(
                     "INSERT INTO AnimalShelter (User_ID, Number_of_Animals) VALUES (%s, %s)",
-                    (new_user_id, 0),  # You may adjust the initial value here
+                    (new_user_id, 0),
                 )
 
             mysql.connection.commit()
@@ -289,7 +270,6 @@ def schedule_online_meeting(pet_id):
             10**9
         )
         random_number = "A" + str(hash)
-        # Check if email and full name match the user in the session
 
         user_id = session["userid"]
         cursor.execute(
@@ -363,14 +343,12 @@ def schedule_vet_appointment(pet_id):
     cursor.execute("SELECT * FROM Pet WHERE Pet_ID = %s", (pet_id,))
     pet_details = cursor.fetchone()
     veterinarians = {}
-    # Fetch all distinct clinic names
     cursor.execute("SELECT DISTINCT Clinic_Name FROM Veterinarian")
     clinics = cursor.fetchall()
 
     if request.method == "POST":
         selected_clinic = request.form.get("clinic")
 
-        # Fetch veterinarians based on the selected clinic
         cursor.execute(
             "SELECT u.User_ID, CONCAT(u.First_Middle_Name, ' ', u.Last_Name) AS Full_Name FROM user u "
             "JOIN Veterinarian v ON u.User_ID = v.User_ID WHERE v.Clinic_Name = %s",
@@ -383,7 +361,6 @@ def schedule_vet_appointment(pet_id):
         appointment_time = request.form["appointment-time"]
         selected_vet = request.form["veterinarian"]
         random_number = "1234"
-        # Check if email and full name match the user in the session
 
         user_id = session["userid"]
         cursor.execute(
@@ -412,13 +389,11 @@ def schedule_vet_appointment(pet_id):
                 (random_number, user_id),
             )
 
-            # Fetch the newly inserted Appointment_ID
             cursor.execute(
                 "SELECT Appointment_ID FROM Appointment ORDER BY Appointment_ID DESC LIMIT 1"
             )
             appointment_id = cursor.fetchone()["Appointment_ID"]
 
-            # Insert data into vet_appoint table
             cursor.execute(
                 "INSERT INTO vet_appoint (Appointment_ID, User_ID) VALUES (%s, %s)",
                 (appointment_id, user_id),
@@ -430,8 +405,6 @@ def schedule_vet_appointment(pet_id):
                 clinics=clinics,
                 veterinarians=veterinarians,
             )
-        # Handle the rest of the form submission for requesting a meeting
-        # ...
 
         return render_template(
             "vet_meeting.html",
@@ -446,99 +419,6 @@ def schedule_vet_appointment(pet_id):
         clinics=clinics,
         veterinarians=veterinarians,
     )
-
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-
-    cursor.execute("SELECT * FROM Pet WHERE Pet_ID = %s", (pet_id,))
-    pet_details = cursor.fetchone()
-
-    cursor.execute(
-        "SELECT u.User_ID, CONCAT(u.First_Middle_Name, ' ', u.Last_Name) AS Full_Name FROM user u, Veterinarian v WHERE u.User_ID = v.User_ID;"
-    )
-    veterinarians = cursor.fetchall()
-
-    if request.method == "POST":
-        email = request.form["email"]
-        fullname = request.form["fullname"]
-        problems = request.form["problems"]
-        appointment_time = request.form["appointment-time"]
-        selected_vet = request.form["veterinarian"]
-        random_number = "1234"
-        # Check if email and full name match the user in the session
-
-        user_id = session["userid"]
-        cursor.execute(
-            "SELECT Email, CONCAT(First_Middle_Name, ' ', Last_Name) AS Full_Name FROM user WHERE User_ID = %s",
-            (user_id,),
-        )
-        user_info = cursor.fetchone()
-
-        if (
-            str(user_info["Email"]).lower().strip() == str(email).lower().strip()
-            and str(user_info["Full_Name"]).lower().strip()
-            == str(fullname).lower().strip()
-        ):
-            cursor.execute(
-                "INSERT INTO Appointment (Appointment_ID, Date, Time, Purpose) VALUES (%s, %s, %s, %s)",
-                (
-                    random_number,
-                    appointment_time.split("T")[0],
-                    appointment_time.split("T")[1],
-                    problems,
-                ),
-            )
-            mysql.connection.commit()
-            cursor.execute(
-                "INSERT INTO vet_appoint (Appointment_ID, User_ID) VALUES (%s, %s)",
-                (random_number, user_id),
-            )
-
-            # Fetch the newly inserted Appointment_ID
-            cursor.execute(
-                "SELECT Appointment_ID FROM Appointment ORDER BY Appointment_ID DESC LIMIT 1"
-            )
-            appointment_id = cursor.fetchone()["Appointment_ID"]
-
-            # Insert data into vet_appoint table
-            cursor.execute(
-                "INSERT INTO vet_appoint (Appointment_ID, User_ID) VALUES (%s, %s)",
-                (appointment_id, user_id),
-            )
-            mysql.connection.commit()
-
-            form_success = True
-            return render_template(
-                "online_meeting.html",
-                pet=pet_details,
-                veterinarians=veterinarians,
-                form_success=form_success,
-                message=user_info,
-            )
-
-        return render_template(
-            "online_meeting.html",
-            pet=pet_details,
-            veterinarians=veterinarians,
-            message="invalid fields"
-            + email
-            + fullname
-            + user_info["Email"]
-            + user_info["Full_Name"],
-        )
-
-    user_id = session["userid"]
-    cursor.execute(
-        "SELECT Email, CONCAT(First_Middle_Name, ' ', Last_Name) AS Full_Name FROM user WHERE User_ID = %s",
-        (user_id,),
-    )
-    user_info = cursor.fetchone()
-    return render_template(
-        "online_meeting.html",
-        pet=pet_details,
-        veterinarians=veterinarians,
-        message=user_info,
-    )
-
 
 pets_data = {
     1: {
@@ -580,7 +460,6 @@ def vet_appointments():
 def adoption_application(id):
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     if request.method == "GET":
-        # Fetch pet data related to the provided ID and user from the session
         user_id = session["userid"]
         if not user_id:
             return "User not logged in", 403
@@ -615,7 +494,6 @@ def adoption_application(id):
             date = request.form.get("date")
             phone_number = request.form.get("phone_number")
 
-            # Insert meet and greet details into the database
             cursor.execute(
                 "INSERT INTO Meet_And_Greet (Date, Time, Pet_ID, User_ID) VALUES (%s, %s, %s, %s)",
                 (date.split("T")[0], date.split("T")[1], id, session["userid"]),
@@ -625,7 +503,6 @@ def adoption_application(id):
             return redirect(url_for("home", id=id))
 
         elif "cancel_application" in request.form:
-            # Cancel the application by updating the status to 'Canceled'
             cursor.execute(
                 "UPDATE AdoptionApplication SET Application_Status = 'Canceled' "
                 "WHERE Application_ID = %s AND User_ID = %s",
@@ -707,21 +584,18 @@ def new_adoption_application(pet_id):
         ) % (10**9)
         new_app_id = "A" + str(hash)
 
-        # Insert into AdoptionApplication table
         cursor.execute(
             "INSERT INTO AdoptionApplication (Application_ID, User_ID, Application_Date, Application_Status) VALUES (%s, %s, CURDATE(), %s)",
             (new_app_id, session["userid"], "Unapproved"),
         )
         mysql.connection.commit()
 
-        # Insert into Pet_Adoption table
         cursor.execute(
             "INSERT INTO Pet_Adoption (Application_ID, Pet_ID) VALUES (%s, %s)",
             (new_app_id, pet_id),
         )
         mysql.connection.commit()
 
-        # Additional processing or redirection after submission
         return render_template(
             "newadoption.html", pet_details=pet_details, submitted=True
         )
@@ -824,7 +698,6 @@ def registerPet():
             cursor.execute("SELECT * FROM Pet")
             pets = cursor.fetchall()
             lastId = 354
-            # Manuel primary key increment
             maxNum = 0
             for pet in pets:
                 lastId = int(pet["Pet_ID"][1:])
@@ -881,7 +754,6 @@ def current_adopted_pets():
         userid = session["userid"]
         message = userid
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        # cursor.execute("SELECT * FROM Pet_Adoption")
         if userid:
             cursor.execute(
                 """
@@ -898,7 +770,7 @@ def current_adopted_pets():
             message = pets
             return render_template(
                 "adoptedPets.html", message=message
-            )  # , userid=userid, username=username, dept=dept, bdate=bdate, year=year, gpa=gpa)
+            ) 
         else:
             return redirect(url_for("login"))
 
@@ -936,7 +808,7 @@ def vet_page():
             message2 = notConfirmedAppointments
             return render_template(
                 "vet_page.html", message=message, message2=message2
-            )  # , userid=userid, username=username, dept=dept, bdate=bdate, year=year, gpa=gpa)
+            ) 
         else:
             return redirect(url_for("vet_page"))
 
@@ -968,7 +840,6 @@ def vet_page():
         notConfirmedAppointments = cursor.fetchall()
         message2 = notConfirmedAppointments
         if "approve" in request.form:
-            # Handle appointment confirmation
             cursor = mysql.connection.cursor()
             cursor.execute(
                 "UPDATE Appointment SET AppointmentStatus = 'Confirmed' WHERE Appointment_ID = %s",
@@ -992,28 +863,8 @@ def vet_page():
                 (new_date, new_time, appointment_id),
             )
             mysql.connection.commit()
-            # Perform the necessary database update here
-            # For example, assuming you have a database connection:
-            # cursor.execute("UPDATE Appointment SET Date = %s, Time = %s WHERE Appointment_ID = %s", (new_date, new_time, appointment_id))
-            # Remember to commit the changes if you're using a database
-
-            # Send a response indicating success
             return "Appointment rescheduled successfully", 200
 
-            # Update the Appointment table with the new date, time, and status
-            cursor.execute(
-                "UPDATE Appointment SET Date = %s, Time = %s, AppointmentStatus = 'Confirmed' WHERE Appointment_ID = %s",
-                (new_date, new_time, appointment_id),
-            )
-            mysql.connection.commit()
-            return render_template(
-                "vet_page.html",
-                message=message,
-                message2=message2,
-                error=appointment_id,
-            )
-
-        error = appointment_id
     return render_template(
         "vet_page.html", message=message, message2=message2, error=appointment_id
     )
@@ -1049,8 +900,6 @@ def shelterAnimalList():
         else:
             return redirect(url_for("login"))
 
-
-# Main Page Function
 @app.route("/tasks", methods=["GET", "POST"])
 def tasks():
     if request.method == "GET":
@@ -1085,8 +934,6 @@ def tasks():
         else:
             return redirect(url_for("login"))
 
-
-# Cancel Application Function
 @app.route("/cancelApplication", methods=["GET", "POST"])
 def cancelApplication():
     if request.method == "POST":
@@ -1106,8 +953,6 @@ def cancelApplication():
             return redirect(url_for("login"))
     return render_template("cancelFailMessage.html")
 
-
-# Application Page Function
 @app.route("/companies", methods=["GET", "POST"])
 def companies():
     if request.method == "GET":
@@ -1208,8 +1053,6 @@ def companies():
             return render_template("login.html")
     return render_template("companies.html")
 
-
-# Application Summary Page Function
 @app.route("/appSum", methods=["GET", "POST"])
 def appSum():
     if request.method == "GET":
@@ -1297,8 +1140,6 @@ def appSum():
             return redirect(url_for("login"))
     return "stats.html"
 
-
-# Logout Function
 @app.route("/logout", methods=["GET", "POST"])
 def logout():
     if request.method == "POST":
@@ -1321,8 +1162,6 @@ def logout():
         return render_template("login.html")
     return render_template("login.html")
 
-
-# I did not use analysis. I used appSum() function as Application Summary Page Function
 @app.route("/analysis", methods=["GET", "POST"])
 def analysis():
     return "Analysis page"
@@ -1414,7 +1253,6 @@ def admin_panel():
         if "pet_id" in request.form and "mark_unavailable" in request.form:
             pet_id = request.form.get("pet_id")
 
-            # Perform a DELETE operation on Pet table to remove the pet
             cursor = mysql.connection.cursor()
             cursor.execute("DELETE FROM Pet WHERE Pet_ID = %s", (pet_id,))
             mysql.connection.commit()
@@ -1424,7 +1262,6 @@ def admin_panel():
         elif "reject" in request.form:
             status = "Rejected"
         else:
-            # Handle other cases or errors here
             pass
 
         cursor.execute(
@@ -1453,7 +1290,7 @@ def admin_panel():
             vet_data=vet_data,
             adopt_data=adopt_data,
             breed_data=breed_data,
-            message=message,  # Pass the message for status update
+            message=message,
         )
 
 
@@ -1470,7 +1307,7 @@ def pet_search():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
 
     if request.method == "POST":
-        # Get the search input and filter values from the form
+
         search_query = request.form.get("search-input")
         pet_type = request.form.get("pet_type")
         min_age = request.form.get("min_age")
@@ -1479,10 +1316,8 @@ def pet_search():
         max_fee = request.form.get("max_fee")
         gender = request.form.get("gender")
 
-        # Perform the search and filter in the database
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
 
-        # Build the SQL query based on the provided filters
         sql_query = """
             SELECT *
             FROM Pet P
