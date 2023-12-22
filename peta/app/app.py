@@ -87,7 +87,7 @@ def login():
                         session["userType"] = "Adopter"
                         session["userid"] = userId
                         return redirect(url_for("pet_search"))
-                        
+
         else:
             message = "Please enter correct password !"
     return render_template("auth/login.html", message=message)
@@ -377,8 +377,13 @@ def schedule_vet_appointment(pet_id):
         fullname = request.form["fullname"]
         problems = request.form["problems"]
         appointment_time = request.form["appointment-time"]
-        selected_vet = request.form["veterinarian"]
-        random_number = "1234"
+        selected_vet = ""
+        if "veterinarian" in request.form:
+            selected_vet = request.form["veterinarian"]
+        hash = sum(ord(char) for char in session["userid"] + pet_id + problems) % (
+            10**9
+        )
+        random_number = "A" + str(hash)
         # Check if email and full name match the user in the session
 
         user_id = session["userid"]
