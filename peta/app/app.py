@@ -359,8 +359,13 @@ def schedule_vet_appointment(pet_id):
         fullname = request.form["fullname"]
         problems = request.form["problems"]
         appointment_time = request.form["appointment-time"]
-        selected_vet = request.form["veterinarian"]
-        random_number = "1234"
+        selected_vet = ""
+        if "veterinarian" in request.form:
+            selected_vet = request.form["veterinarian"]
+        hash = sum(ord(char) for char in session["userid"] + pet_id + problems) % (
+            10**9
+        )
+        random_number = "A" + str(hash)
 
         user_id = session["userid"]
         cursor.execute(
@@ -500,7 +505,7 @@ def adoption_application(id):
             )
             mysql.connection.commit()
 
-            return redirect(url_for("home", id=id))
+            return redirect(url_for("adoption_application", id=id))
 
         elif "cancel_application" in request.form:
             cursor.execute(
@@ -510,7 +515,7 @@ def adoption_application(id):
             )
             mysql.connection.commit()
 
-            return redirect(url_for("home"))
+            return redirect(url_for("adoption_application", id=id))
 
         elif "delete_meet" in request.form:
             meet_date = request.form.get("meet_date")
@@ -717,7 +722,7 @@ def registerPet():
                     age,
                     gender,
                     description,
-                    "notAdopted",
+                    "Unapproved",
                     vacCard,
                     animalFee,
                 ),
@@ -725,7 +730,7 @@ def registerPet():
             mysql.connection.commit()
             # increment animal count of animal shelter
             current_number_of_animals = account["Number_of_Animals"]
-            updated_number_of_animals = current_number_of_animals + 1
+            updated_number_of_animals = current_number_of_animals
             cursor.execute(
                 "UPDATE AnimalShelter SET Number_of_Animals = %s WHERE User_ID = %s",
                 (updated_number_of_animals, userid),
@@ -884,7 +889,7 @@ def shelterAnimalList():
                 SELECT P.*
                 FROM Pet P
                 NATURAL JOIN lists L
-                WHERE L.User_ID = %s AND P.Adoption_Status = 'Approved'
+                WHERE L.User_ID = %s AND P.Adoption_Status = 'Unapproved'
             """,
                 (shelterId,),
             )
@@ -1224,8 +1229,7 @@ def admin_panel():
     cursor.execute(
         """
                     SELECT P.Breed, COUNT(P.Pet_ID) AS NumAdoptions
-                    FROM Pet P
-                    WHERE P.Adoption_Status = 'Approved'
+                    FROM Pet P NATURAL JOIN Has_Pet
                     GROUP BY P.Breed
                     ORDER BY NumAdoptions DESC
                     LIMIT 3
@@ -1282,7 +1286,7 @@ def admin_panel():
                 message = f"Error: {str(e)}"
         else:
             message = "No application found for this pet."
-        message += "Button submit"
+        
         return render_template(
             "admin_panel.html",
             pet_data=pet_data,
