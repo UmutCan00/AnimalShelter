@@ -845,7 +845,7 @@ def registerPet():
                     age,
                     gender,
                     description,
-                    "notAdopted",
+                    "Unapproved",
                     vacCard,
                     animalFee,
                 ),
@@ -853,7 +853,7 @@ def registerPet():
             mysql.connection.commit()
             # increment animal count of animal shelter
             current_number_of_animals = account["Number_of_Animals"]
-            updated_number_of_animals = current_number_of_animals + 1
+            updated_number_of_animals = current_number_of_animals
             cursor.execute(
                 "UPDATE AnimalShelter SET Number_of_Animals = %s WHERE User_ID = %s",
                 (updated_number_of_animals, userid),
@@ -1034,7 +1034,7 @@ def shelterAnimalList():
                 SELECT P.*
                 FROM Pet P
                 NATURAL JOIN lists L
-                WHERE L.User_ID = %s AND P.Adoption_Status = 'Approved'
+                WHERE L.User_ID = %s AND P.Adoption_Status = 'Unapproved'
             """,
                 (shelterId,),
             )
